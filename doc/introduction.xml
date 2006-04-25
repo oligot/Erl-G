@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+
+<!--
+description:
+
+"Introduction"
+
+copyright: "Copyright (c) 2005, Andreas Leitner and others"
+license: "Eiffel Forum License v2 (see forum.txt)"
+date: "$Date$"
+revision: "$Revision$"
+
+-->
+
+<chapter xmlns="http://www.gobosoft.com/eiffel/gobo/documentation" id="erl_g/introduction">
+
+  <chapterinfo>
+	<copyright>
+	  <year>2005</year>
+	  <holder>Andreas Leitner</holder>
+	</copyright>
+	<author>
+	  <firstname>Andreas</firstname><surname>Leitner</surname>
+	</author>
+	<email>andreas.leitner@inf.ethz.ch</email>
+	<date>28 July 2005</date>
+  </chapterinfo>
+
+  <title>Introduction to the Erl-G</title>
+  <section>
+	<title>What is Erl-G?</title>
+
+	<para>
+		Erl-G is the Eiffel Reflection Library Generator. With Erl-G
+		you can make an arbitrary Eiffel system reflectable.
+	</para>
+
+	<itemizedlist>
+		<listitem><para>Eiffel Reflection Library Generator</para></listitem>
+		<listitem><para>The Earl Gray of Reflection Libraries</para></listitem>
+		<listitem><para>Why write libraries when you can generate them?</para></listitem>
+		<listitem><para>Tea time for reflection</para></listitem>
+	</itemizedlist>
+
+	<para>
+		Erl-G is split into two parts:
+	</para>
+	<itemizedlist>
+		<listitem><para>The generator 'erl_g'</para></listitem>
+		<listitem><para>The runtime library (located in ${ERL_G}/library/runtime)</para></listitem>
+	</itemizedlist>
+
+	<para>
+		To make a system reflectable 'erl_g' has to be invoked on the system
+		prior to the normal compilation. It will generate a set of classes that
+		together with the Erl-G runtime library will become part of the system.
+		The reflection API can then be accesses from within your system by
+		inheriting from class ERL_G_SHARED_UNIVERSE.
+	</para>
+  </section>
+
+	<section>
+		<title>Requirements</title>
+
+		<itemizedlist>
+			<listitem><para><link linkend="http://www.eiffel.com/index">ISE Eiffel 5.6</link> or greater</para></listitem>
+			<listitem><para><link linkend="http://www.gobosoft.com/index">Gobo</link> - use the development version available via <link linkend="http://sourceforge.net/projects/gobo-eiffel/index">CVS from SourceForge</link></para></listitem>
+			<listitem><para>Any platform supported by the above</para></listitem>
+		</itemizedlist>
+	</section>
+
+	<section>
+		<title>Current Limitations</title>
+
+		<itemizedlist>
+			<listitem><para>Only features exported to ANY are introspectable.</para></listitem>
+			<listitem><para>Preconditions and postconditions are not introspectable.</para></listitem>
+			<listitem><para>Expanded types other than the basic types are not fully supported.</para></listitem>
+			<listitem><para>Only a finite number of types can be made introspectable.</para></listitem>
+			<listitem><para>Infix and prefix features are currently not supported</para></listitem>
+			<listitem><para>Value of unique constants is always reported to by `0'.</para></listitem>
+		</itemizedlist>
+	</section>
+
+	<section>
+		<title>Acknowledgements</title>
+
+		<para>
+			Erl-G is based on the Eiffel parser from Gobo and includes a modified
+			version of the Eiffel Reflection Library (ERL) created by Beat Fluri.
+		</para>
+
+	</section>
+
+	<section>
+		<title>Contact</title>
+
+		<itemizedlist>
+			<listitem><para>www: http://se.inf.ethz.ch/people/leitner/erl_g/</para></listitem>
+			<listitem><para>email: Andreas Leitner (andreas.leitner@inf.ethz.ch)</para></listitem>
+		</itemizedlist>
+	</section>
+</chapter>

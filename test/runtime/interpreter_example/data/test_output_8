@@ -1,0 +1,30 @@
+done:
+INTEGER
+done:
+done:
+DOUBLE
+done:
+done:
+CHARACTER
+done:
+---multi-line-value-start---
+---multi-line-value-end---
+status: success
+done:
+STRING
+done:
+---multi-line-value-start---
+---multi-line-value-end---
+status: success
+done:
+LINKED_LIST [STRING]
+done:
+---multi-line-value-start---
+---multi-line-value-end---
+status: success
+done:
+INTERNAL
+done:
+done:
+NONE
+done:

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+
+<system name="xerl_g_runtime">
+	<description>
+		system: "Erl-G Runtime Library Tester"
+		copyright: "Copyright (c) 2005, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<root class="XERL_G_RUNTIME" creation="make"/>
+	<option name="console_application" value="true"/>
+	<option unless="${DEBUG}">
+		<option name="assertion" value="none"/>
+		<option name="garbage_collector" value="none"/>
+		<option name="finalize" value="true"/>
+	</option>
+	<option if="${DEBUG}">
+		<option name="assertion" value="all"/>
+		<option name="garbage_collector" value="internal"/>
+		<option name="finalize" value="false"/>
+	</option>
+	<option if="${GOBO_DOTNET}">
+		<option name="msil_generation" value="true"/>
+		<option name="line_generation" value="true"/>
+	</option>
+	<option if="${GOBO_EIFFEL}=se">
+		<option name="warning" value="none"/>
+		<option name="case_insensitive" value="false"/>
+	</option>
+
+	<cluster name="erl_g_runtime_tester" location="${ERL_G}/test/runtime" prefix="test_">
+		<cluster name="TESTGEN" unless="${ERL_G_NO_IMPLEMENTATION}"/>
+		<cluster name="reflection_library" unless="${ERL_G_NO_IMPLEMENTATION}"/>
+		<cluster name="interpreter"/>
+		<cluster name="liveness">
+			<cluster name="example_1"/>
+		</cluster>
+	</cluster>
+	<cluster name="erl_g_test_common" location="${ERL_G}/test/common"/>
+	<mount location="${GOBO}/library/library.xace"/>
+	<mount location="${GOBO}/library/kernel.xace"/>
+	<mount location="${ERL_G}/library/runtime/library.xace"/>
+</system>

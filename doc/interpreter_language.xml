@@ -1,0 +1,397 @@
+<?xml version="1.0"?>
+
+<!--
+description:
+
+"Language understood by interpreter"
+
+copyright: "Copyright (c) 2005, Andreas Leitner and others"
+license: "Eiffel Forum License v2 (see forum.txt)"
+date: "$Date: 2005/09/09 06:55:33 $"
+revision: "$Revision: 1.2 $"
+
+-->
+
+<chapter xmlns="http://www.gobosoft.com/eiffel/gobo/documentation" id="erl_g/interpreter_language">
+
+  <chapterinfo>
+    <copyright>
+      <year>2005</year>
+      <holder>Andreas Leitner</holder>
+    </copyright>
+    <author>
+      <firstname>Andreas</firstname><surname>Leitner</surname>
+    </author>
+    <email>andreas.leitner@inf.ethz.ch</email>
+    <date>2 August 2005</date>
+  </chapterinfo>
+
+  <title>Language understood by interpreter</title>
+
+	<section>
+	
+	<note>
+		This document is currenlty out of date!
+	</note>
+
+	<itemizedlist>
+		<listitem>
+			<para>
+				Object creation: create a new object.
+			</para>
+			<para>
+				Request:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	create {&lt;Type&gt;} &lt;Variable&gt;[.&lt;Creation_procedure_name&gt; [&lt;Arguments&gt;]]
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Response:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	status:pass
+	done:
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Examples:
+			</para>
+			<informalexample>
+				<programlisting>
+	create {LINKED_LIST [ANY]} my_list.make
+	create {STRING} my_string.make (0)
+	create {DEFAULT_CREATABLE} a_var
+				</programlisting>
+			</informalexample>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Feature invocation: invoke a feature and optionally store its result in a variable.
+			</para>
+			<para>
+				Request:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	&lt;Variable&gt;.&lt;Feature_name&gt; [&lt;Arguments&gt;]
+	&lt;Variable&gt; := &lt;Variable&gt;.&lt;Feature_name&gt; [&lt;Arguments&gt;]
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Response:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	status:pass
+	done:
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Examples:
+			</para>
+			<informalexample>
+				<programlisting>
+	my_char := my_string.item (3)
+	my_bool := my_list.valid_cursor (my_cursor)
+				</programlisting>
+			</informalexample>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Evaluating the precondition of a creation procedure. Note that the result type is always BOOLEAN.
+			</para>
+			<para>
+				Request:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	&lt;Variable&gt; := precondition {&lt;Type&gt;} &lt;Creation_procedure_name&gt; [&lt;Arguments&gt;]
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Response:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	status:pass
+	done:
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Examples:
+			</para>
+			<informalexample>
+				<programlisting>
+	my_bool := precondition {LINKED_LIST [STRING]}.make
+				</programlisting>
+			</informalexample>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Evaluating the precondition of a feature. Note that the result type is always BOOLEAN
+			</para>
+			<para>
+				Request:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	&lt;Variable&gt; := precondition &lt;Variable&gt;.&lt;Feature_name&gt; [&lt;Arguments&gt;]
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Response:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	status:pass
+	done:
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Error response:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	error:&lt;reason&gt;
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Examples:
+			</para>
+			<informalexample>
+				<programlisting>
+	my_bool := precondition my_string.item (Void)
+				</programlisting>
+			</informalexample>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Assignment: assignment of an expression to a variable
+			</para>
+			<para>
+				Request:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	&lt;Variable&gt; := [Constant|Variable]
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Response:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	status:pass
+	done:
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Examples:
+			</para>
+			<informalexample>
+				<programlisting>
+	x := 10
+				</programlisting>
+			</informalexample>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Variable names: like Eiffel variable names.
+			</para>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Type names: like Eiffel type names.
+			</para>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Constants
+			</para>
+			<programlisting>
+	&lt;Constant&gt; := 		    [	&lt;Void_constant&gt; 		| 
+						&lt;Integer_8_constant&gt; 	|
+						&lt;Integer_16_constant&gt;	|
+						&lt;Integer_constant&gt; 	|
+						&lt;Integer_64_constant&gt; |
+						&lt;Natural_8_constant&gt; 	|
+						&lt;Natural_16_constant&gt; |
+						&lt;Natural_32_constant&gt;	|
+						&lt;Natural_64_constant&gt; |
+						&lt;Real_constant&gt; 		|
+						&lt;Double_constant&gt; 	|
+						&lt;Boolean_constant&gt; 	|
+						&lt;Character_constant&gt;	]
+	Void_constant 		:= Void
+	Integer_8_constant 	:= {INTEGER_8} &lt;Value&gt;
+	Integer_16_constant := {INTEGER_16} &lt;Value&gt;
+	Integer_constant 	:= [{INTEGER}] &lt;Value&gt;
+	Integer_64_constant := {INTEGER_64} &lt;Value&gt;
+	Natural_8_constant 	:= {NATURAL_8} &lt;Value&gt;
+	Natural_16_constant := {NATURAL_16} &lt;Value&gt;
+	Natural_32_constant := {NATURAL_32} &lt;Value&gt;
+	Natural_64_constant := {NATURAL_64} &lt;Value&gt;
+	Double_constant 	:= [{DOUBLE}] &lt;Value&gt;.&lt;Value&gt;
+	Real_constant 		:= {REAL} &lt;Value&gt;.&lt;Value&gt;
+	Boolean_constant	:= [{BOOLEAN}][True|False]
+	Character_constant  := [{CHARACTER}]'c'
+			</programlisting>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Arguments
+			</para>
+			<programlisting>
+	[
+	&lt;Arguments&gt; := [Constant|Variable]+
+	]
+			</programlisting>
+			<para>
+				If an exception was triggered the response looks like this:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	status:fail
+	status:precondition
+	TODO...
+	]
+				</programlisting>
+			</informalexample>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Meta-Command: list variables
+			</para>
+			<para>
+				Request:
+			</para>
+			<programlisting>
+	[
+	list:
+	]
+			</programlisting>
+			<para>
+				Response: a list of all variable names that have previously be assigned to or created. For example:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	my_string: &lt;Type&gt;
+	my_list: &lt;Type&gt;
+	done:
+	]
+				</programlisting>
+			</informalexample>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Meta-Command: show variable
+			</para>
+			<para>
+				Request:
+			</para>
+			<programlisting>
+	[
+	show: &lt;Variable&gt;
+	]
+			</programlisting>
+			<para>
+				Response:
+			</para>
+			<itemizedlist>
+				<listitem>
+					<para>
+						If the variable is of a basic expanded type then its value is printed in the constant notation. Example:
+					</para>
+					<informalexample>
+						<programlisting>
+	[
+	{INTEGER_8} 0
+	done:
+	]
+						</programlisting>
+					</informalexample>
+				</listitem>
+				<listitem>
+					<para>
+						If the variable is of a reference type then its address is printed. Example:
+					</para>
+					<informalexample>
+						<programlisting>
+	[
+	0x00123212
+	done:
+	]
+						</programlisting>
+					</informalexample>
+				</listitem>
+			</itemizedlist>
+		</listitem>
+		
+		<listitem>
+			<para>
+				Quitting: quitting the interpreter
+			</para>
+			<para>
+				Request:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	:quit
+	]
+				</programlisting>
+			</informalexample>
+			<para>
+				Response:
+			</para>
+			<informalexample>
+				<programlisting>
+	[
+	done:
+	]
+				</programlisting>
+			</informalexample>
+		</listitem>
+		
+	</itemizedlist>
+
+  </section>
+
+</chapter>

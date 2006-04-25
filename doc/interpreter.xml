@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<!--
+description:
+
+"The interpreter"
+
+copyright: "Copyright (c) 2005, Andreas Leitner and others"
+license: "Eiffel Forum License v2 (see forum.txt)"
+date: "$Date$"
+revision: "$Revision$"
+
+-->
+
+<chapter xmlns="http://www.gobosoft.com/eiffel/gobo/documentation" id="erl_g/interpreter">
+
+  <chapterinfo>
+    <copyright>
+      <year>2005</year>
+      <holder>Andreas Leitner</holder>
+    </copyright>
+    <author>
+      <firstname>Andreas</firstname><surname>Leitner</surname>
+    </author>
+    <email>andreas.leitner@inf.ethz.ch</email>
+    <date>2 August 2005</date>
+  </chapterinfo>
+
+  <title>The interpreter</title>
+
+	<section>
+		<para>
+			Erl-G includes a very simple interpreter. The language understood by this interpreter is described in the next chapter.
+			Please have a look at the 'interpreter' example for more details.
+		</para>
+		
+		<note>
+			TODO:
+		</note>
+	</section>
+
+</chapter>

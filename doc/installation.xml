@@ -1,0 +1,132 @@
+<?xml version="1.0"?>
+
+<!--
+description:
+
+"Installation"
+
+copyright: "Copyright (c) 2005, Andreas Leitner and others"
+license: "Eiffel Forum License v2 (see forum.txt)"
+date: "$Date$"
+revision: "$Revision$"
+
+-->
+
+<chapter xmlns="http://www.gobosoft.com/eiffel/gobo/documentation" id="erl_g/installation">
+
+  <chapterinfo>
+	<copyright>
+	  <year>2005</year>
+	  <holder>Andreas Leitner</holder>
+	</copyright>
+	<author>
+	  <firstname>Andreas</firstname><surname>Leitner</surname>
+	</author>
+	<email>andreas.leitner@inf.ethz.ch</email>
+	<date>28 July 2005</date>
+  </chapterinfo>
+
+  <title>Installation</title>
+
+	<section>
+
+	<itemizedlist>
+		<listitem>
+			<para>
+				ISE Eiffel:
+			</para>
+			<para>
+			  Make sure you have ISE Eiffel installed and that its binary directory is included in your
+			  PATH environment variable. Specifically make sure that the program 'ec' is startable from your
+			  command line prompt.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				Gobo:
+			</para>
+			<para>
+			  Make sure you have Gobo installed. Make sure the Gobo
+			  tools are available from your path. Try it by executing 'geant' on
+			  the command line. You will have to have the GOBO environment variable 
+			  point to your Gobo installation and GOBO_EIFFEL has to be set to 'ise'.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+			  Set the environment variable ERL_G to where you unpacked Erl-G to. Set
+			  the PATH variable to include the 'bin' directory of Erl-G. For
+			  example on windows:
+			</para>
+
+			<informalexample>
+			  <programlisting>
+set ERL_G=c:\erl_g
+set PATH=%PATH%;%ERL_G%\bin
+			  </programlisting>
+			</informalexample>
+			<para>
+				On Linux:
+			</para>
+			<informalexample>
+			  <programlisting>
+export ERL_G=/home/aleitner/erl_g
+export PATH=$PATH:$ERL_G/bin
+			  </programlisting>
+			</informalexample>
+			<para>
+				Make sure that the name of the path that points to your Erl-G installation does not contain any spaces.
+			</para>
+		</listitem>
+		<listitem>
+			<para>
+				Compile Erl-G (the generator)
+			</para>
+			<para>
+			  This step is only necessary if you obtained a non binrary Erl-G package.
+			</para>
+			<para>
+			  On Windows:
+			 </para>
+
+			<informalexample>
+			  <programlisting>
+cd %ERL_G%
+geant install
+geant compile
+			  </programlisting>
+			</informalexample>
+
+			<para>
+			  On Linux:
+ 			</para>
+			<informalexample>
+			  <programlisting>
+cd $ERL_G
+geant install
+geant compile
+			  </programlisting>
+			</informalexample>
+		</listitem>
+
+		<listitem>
+			<para>
+				Examples
+			</para>
+			<para>
+			  Go to the 'hello_world' example and follow the instructions from the
+			  file 'readme.txt' in the examples directory.
+			</para>
+			<para>
+				To make your own system reflectable just adjust the build.eant and
+				system.xace file to your needs. To use Erl-G it is recommended but not
+				required to use the Gobo build tools (geant and gexace). If you want to
+				use Erl-G without the Gobo build tools just run 'erl_g' to learn about its
+				command line interface.
+			</para>
+		</listitem>
+	</itemizedlist>
+
+  </section>
+
+</chapter>

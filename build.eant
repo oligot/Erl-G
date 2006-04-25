@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+
+<project name="erl_g_root" default="help">
+
+	<description>
+		description: "Eiffel Ant file for Erl-G"
+		copyright: "Copyright (c) 2004-2005, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<target name="help">
+		<echo message="usage:"/>
+		<echo message="   geant install"/>
+		<echo message="   geant install_examples"/>
+		<echo message="   geant clobber"/>
+		<echo message="   geant clean"/>
+		<echo message="   geant compile"/>
+		<echo message="   geant delivery"/>
+	</target>
+
+	<target name="install" depend="init">
+		<description>
+			Invokes gepp on .ge files.
+			Preprocesses header files for test cluster
+		</description>
+		<geant file="build.eant" target="install" dir="src/erl_g"/>
+		<geant file="build.eant" target="install" dir="doc"/>
+	</target>
+
+	<target name="clean" depend="init">
+		<description>
+			Remove intermediary generated files.
+		</description>
+
+		<geant target="remove_backup_files"/>
+		<geant file="build.eant" target="clean" dir="src/erl_g"/>
+		<geant file="build.eant" target="clean" dir="example/hello_world"/>
+		<geant file="build.eant" target="clean" dir="example/interpreter"/>
+		<geant file="build.eant" target="clean" dir="test/"/>
+		<geant file="build.eant" target="clean" dir="doc/"/>
+	</target>
+
+	<target name="compile" depend="init">
+		<description>
+			Compile 'erg_g' tool into ${ERL_G}/bin.
+		</description>
+		<geant file="${ERL_G}/src/erl_g/build.eant" target="compile_ise" dir="bin"/>
+		<geant file="${ERL_G}/src/erl_g/build.eant" target="clean" dir="bin"/>
+		<geant file="build.eant" target="install" dir="src/erl_g"/>
+	</target>
+
+	<target name="clobber" depend="init">
+		<description>
+			Remove all generated files.
+		</description>
+
+		<geant target="remove_backup_files"/>
+		<geant target="remove_ve_project_files"/>
+		<geant file="${ERL_G}/src/erl_g/build.eant" target="clobber" dir="src/erl_g"/>
+		<geant file="${ERL_G}/src/erl_g/build.eant" target="clobber" dir="bin"/>
+		<geant file="${ERL_G}/example/hello_world/build.eant" target="clobber" dir="example/hello_world"/>
+		<geant file="${ERL_G}/example/interpreter/build.eant" target="clobber" dir="example/interpreter"/>
+		<geant file="build.eant" target="clobber" dir="test/"/>
+		<geant file="build.eant" target="clobber" dir="doc/"/>
+	</target>
+
+	<target name="remove_backup_files" depend="init">
+		<description>
+			Remove backup files made by editors.
+		</description>
+		<delete>
+			<fileset directory="." include="**/*~"/>
+		</delete>
+	</target>
+
+	<target name="remove_ve_project_files" depend="init">
+		<description>
+			Remove project files made by ve.
+		</description>
+			  <exec executable="find . -type d -name eProject | xargs -n 1 rm -rf" unless="${GOBO_OS}=windows"/>
+			  <exec executable="find . -type d -name eCluster | xargs -n 1 rm -rf" unless="${GOBO_OS}=windows"/>
+		<delete>
+			<fileset directory="." include="**/*.xcp"/>
+		</delete>
+	</target>
+
+	<target name="delivery" depend="init">
+		<description>
+			Build delivery package.
+		</description>
+
+		<geant target="clobber"/>
+		<geant target="install"/>
+		<geant target="clean"/>
+		<geant target="install"/>
+		<delete>
+			<fileset directory="." include="@(**/.cvsignore)"/>
+		</delete>
+		<delete>
+			<directoryset directory="." include="@(**/CVS)"/>
+		</delete>
+		<delete file=".project"/>
+	</target>
+
+<!-- Implementation -->
+
+	<target name="init">
+	</target>
+
+</project>

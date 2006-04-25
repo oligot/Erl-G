@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+<project name="erl_g" default="help">
+
+	<description>
+		description: "Eiffel Ant file for 'erl_g'"
+		system: "erl_g"
+		copyright: "Copyright (c) 2004-2005, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<inherit>
+		<parent location="${GOBO}/misc/eiffel.eant">
+			<redefine target="init_system"/>
+			<redefine target="clean"/>
+		</parent>
+	</inherit>
+
+
+<!-- Implementation -->
+
+	<target name="init_system">
+		<set name="system" value="erl_g"/>
+		<set name="system_dir" value="${ERL_G}/src/erl_g"/>
+	</target>
+
+	<target name="clean" depend="init">
+		<delete file="TAGS"/>
+		<precursor/>
+	</target>
+
+	<target name="tags_ise" depend="init">
+		<set name="eiffel" value="ise"/>
+		<geant target="tags"/>
+	</target>
+
+	<target name="tags_ve" depend="init">
+		<set name="eiffel" value="ve"/>
+		<geant target="tags"/>
+	</target>
+
+	<target name="tags_se" depend="init">
+		<set name="eiffel" value="se"/>
+		<geant target="tags"/>
+	</target>
+
+	<target name="tags" depend="init">
+	  <set name="define" value="GOBO_EIFFEL=${eiffel}"/>
+	  <set name="define" value="${define} GOBO_OS=${GOBO_OS}"/>
+	  <set name="define" value="${define} GOBO_CC=${GOBO_CC}" if="${GOBO_CC}"/>
+	  <set name="define" value="${define} GOBO_XML_EXPAT=true" if="${GOBO_XML_EXPAT}"/>
+	  <set name="define" value="${define} GOBO_DOTNET=true" if="${GOBO_DOTNET}"/>
+	  <set name="define" value="${define} SE_1_0=true" if="${SE_1_0}"/>
+	  <set name="define" value="${define} VE_4_1=true" if="${VE_4_1}"/>
+	  <set name="void" value="--void" if="${eiffel}=ve"/>
+	  <exec executable="gutentag ${void} --define=&quot;${define}&quot;"/>
+	</target>
+
+</project>

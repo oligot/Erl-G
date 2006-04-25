@@ -1,0 +1,25 @@
+Version 1.1.0 - 08.03.2006
+	* Bug fixes
+
+Version 1.0.0 - 30.10.2005
+	* Generate valid Eiffel code for systems containing unique features
+	* Bug fixes
+
+Version 0.9.0 - 07.10.2005
+	* Many bug fixes
+
+Version 0.1.0 - 09.09.2005
+   * Support for default creation procedures
+   * Make common types reflectable automatically (optional)
+   * Simple interpreter
+   * Better life type closure
+   * Lots of bug fixing
+
+Version 0.0.3 - 30.07.2005
+   * Gobo portability fixes
+
+Version 0.0.2 - 29.07.2005
+   * Small bug fixes
+
+Version 0.0.1 - 29.07.2005
+   * Initial Release

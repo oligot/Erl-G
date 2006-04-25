@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+
+<system name="erl_g">
+	<description>
+		system: "Eiffel Reflection Library Generator"
+		copyright: "Copyright (c) 2004-2005, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<root class="ERL_G" creation="execute"/>
+	<option name="console_application" value="true"/>
+	<option unless="${DEBUG}">
+		<option name="assertion" value="none"/>
+		<option name="garbage_collector" value="none"/>
+		<option name="finalize" value="true" unless="${GOBO_EIFFEL}=ve"/>
+	</option>
+	<option if="${DEBUG}">
+		<option name="assertion" value="all"/>
+		<option name="garbage_collector" value="none"/>
+		<option name="finalize" value="false"/>
+	</option>
+	<option if="${GOBO_DOTNET}">
+		<option name="msil_generation" value="true"/>
+		<option name="line_generation" value="true"/>
+	</option>
+	<option if="${GOBO_EIFFEL}=se">
+		<option name="warning" value="none"/>
+		<option name="case_insensitive" value="false"/>
+	</option>
+
+	<cluster name="erl_g_ve" location="." if="${GOBO_EIFFEL}=ve"/>
+	<cluster name="erl_g" location="${ERL_G}/src/erl_g"/>
+	<cluster name="gexace" location="${GOBO}/src/gexace"/>
+
+	<mount location="${ERL_G}/library/library.xace"/>
+	<mount location="${GOBO}/library/library.xace"/>
+	<mount location="${GOBO}/library/kernel.xace"/>
+
+</system>

@@ -1,0 +1,2 @@
+create {LINKED_LIST [STRING]} a_list.make (0)
+:quit

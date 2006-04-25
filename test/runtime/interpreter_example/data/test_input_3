@@ -1,0 +1,5 @@
+create {STRING} foo.make (10)
+x := foo.capacity
+io := foo.io
+io.put_integer (x)
+:quit

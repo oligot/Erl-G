@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+
+<!--
+description:
+
+"Introduction"
+
+copyright: "Copyright (c) 2005, Andreas Leitner and others"
+license: "Eiffel Forum License v2 (see forum.txt)"
+date: "$Date$"
+revision: "$Revision$"
+
+-->
+
+<chapter xmlns="http://www.gobosoft.com/eiffel/gobo/documentation" id="erl_g/introduction">
+
+  <chapterinfo>
+    <copyright>
+      <year>2005</year>
+      <holder>Andreas Leitner</holder>
+    </copyright>
+    <author>
+      <firstname>Andreas</firstname><surname>Leitner</surname>
+    </author>
+    <email>andreas.leitner@inf.ethz.ch</email>
+    <date>28 July 2005</date>
+  </chapterinfo>
+
+  <title>Erl-G Documentation: Table of Contents</title>
+  <section>
+    <title>Table of Contentes</title>
+
+	<itemizedlist>
+		<listitem><para><link linkend="introduction">Introduction to Erl-G</link></para></listitem>
+		<listitem><para><link linkend="installation">Installation of Erl-G</link></para></listitem>
+		<listitem><para><link linkend="runtime_library">The Design of the Erl-G runtime library</link></para></listitem>
+		<listitem><para><link linkend="interpreter">The Interpreter</link></para></listitem>
+		<listitem><para><link linkend="interpreter_language">Language understood by interpreter</link></para></listitem>
+	</itemizedlist>
+
+	</section>
+</chapter>

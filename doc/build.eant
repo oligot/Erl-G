@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+
+<project name="erl_g_documentation" default="help">
+
+  <description>
+    description: "Eiffel Ant file for Erl-G  Documentation"
+    system: "Erl-G Documentation"
+    copyright: "Copyright (c) 2005, Andreas Leitner and others"
+    license: "Eiffel Forum License v2 (see forum.txt)"
+    date: "$Date$"
+    revision: "$Revision$"
+  </description>
+
+  <target name="help">
+    <echo message="usage:"/>
+    <echo message="   geant convert_images"/>
+    <echo message="   geant install"/>
+    <echo message="   geant clean"/>
+    <echo message="   geant clobber"/>
+  </target>
+
+  <target name="convert_images" unless="${GOBO_OS}=windows">
+    <description>
+      Convert Images from their source format to PNG.
+      Requires the tools 'dia' and 'convert'.
+    </description>
+    
+    <exec executable="dia --nosplash ${fs.filename} --export=${fs.mapped_filename}">
+      <fileset 
+	   dir="${ERL_G}/doc/image"
+	   filename_directory="${ERL_G}/doc/image"  
+	   mapped_filename_directory="${ERL_G}/doc/image" 
+	   include="@(**/*.dia)">
+	 <map type="glob" from="*.dia" to="*.eps"/>
+      </fileset>
+    </exec>
+
+    <exec executable="convert ${fs.filename} ${fs.mapped_filename}">
+      <fileset 
+	   dir="${ERL_G}/doc/image"
+	   filename_directory="${ERL_G}/doc/image"  
+	   mapped_filename_directory="${ERL_G}/doc/image" 
+	   include="@(**/*.eps)">
+	 <map type="glob" from="*.eps" to="*.png"/>
+      </fileset>
+    </exec>
+  </target>
+
+  <target name="install">
+    <description>
+      Install the Erl-G Documentation.
+    </description>
+
+    <geant target="convert_images"/>
+
+    <set name="xslt_processor" value="gexslt" unless="$GOBO_XSLT_PROCESSOR"/>
+    <set name="xslt_processor" value="${GOBO_XSLT_PROCESSOR}" if="$GOBO_XSLT_PROCESSOR"/>
+
+    <set name="previous" value="toc"/>
+    <set name="current" value="toc"/>
+    <geant target="xslt_and_shift" arguments="introduction"/>
+    <geant target="xslt_and_shift" arguments="installation"/>
+    <geant target="xslt_and_shift" arguments="runtime_library"/>
+    <geant target="xslt_and_shift" arguments="interpreter"/>
+    <geant target="xslt_and_shift" arguments="interpreter_language"/>
+    <geant target="xslt_and_shift" arguments="toc"/>
+  </target>
+
+  <target name="clean">
+    <description>
+      Remove intermediary generated files.
+    </description>
+
+    <!-- do nothing -->
+  </target>
+
+  <target name="clobber">
+    <description>
+      Remove all generated files.
+    </description>
+    
+    <delete file="${ERL_G}/doc/toc.html"/>
+    <delete file="${ERL_G}/doc/introduction.html"/>
+    <delete file="${ERL_G}/doc/runtime_library.html"/>
+    <delete file="${ERL_G}/doc/installation.html"/>
+    <delete file="${ERL_G}/doc/interpreter.html"/>
+    <delete file="${ERL_G}/doc/interpreter_language.html"/>
+  </target>
+
+  <!-- Implementation -->
+
+  <target name="xslt_and_shift" export="NONE">
+    <description>
+      Call `xslt' and shift variables `previous' and `current' one chapter forward.
+    </description>
+    <argument name="a_next"/>
+
+    <geant target="xslt" arguments="${previous},${current},${a_next}"/>
+    <!-- Shift parameters -->
+    <set name="previous" value="${current}"/>
+    <set name="current" value="${a_next}"/>
+  </target>
+
+  <target name="xslt" export="NONE">
+    <description>
+      Execute XSL Transformation for argument ${a_file}, ${a_previous}
+      and ${a_next} using processor ${xslt_processor}.
+    </description>
+    <argument name="a_previous"/>
+    <argument name="a_file"/>
+    <argument name="a_next"/>
+
+    <xslt processor="${xslt_processor}" input="${a_file}.xml" output="${a_file}.html" stylesheet="${ERL_G}/doc/misc/gobo2html2.xsl">
+      <parameter name="previous" value="&quot;'${a_previous}.html'&quot;"/>
+      <parameter name="next" value="&quot;'${a_next}.html'&quot;"/>
+      <parameter name="toc" value="&quot;'toc.html'&quot;"/>
+    </xslt>
+  </target>
+
+</project>

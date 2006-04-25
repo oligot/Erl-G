@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<library name="erl_g_runtime">
+
+	<description>
+		description: "Xace file for the Eiffel Reflection Library Generator Runtime"
+		copyright: "Copyright (c) 2004-2005, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<cluster name="erl_g_runtime" location="${ERL_G}/library/runtime">
+	  <cluster name="implementation">
+	  </cluster>
+	  <cluster name="interpreter">
+		<cluster name="expression"/>
+	  </cluster>
+	</cluster>
+
+	<mount location="${ERL_G}/library/runtime/implementation/empty_universe/library.xace" if="${ERL_G_NO_IMPLEMENTATION}"/>
+	<option name="header" value="${ERL_G}/library/runtime"/>
+
+</library>

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<!--
+description:
+
+"Introduction"
+
+copyright: "Copyright (c) 2005, Andreas Leitner and others"
+license: "Eiffel Forum License v2 (see forum.txt)"
+date: "$Date$"
+revision: "$Revision$"
+
+-->
+
+<chapter xmlns="http://www.gobosoft.com/eiffel/gobo/documentation" id="erl_g/runtime_library">
+
+  <chapterinfo>
+    <copyright>
+      <year>2005</year>
+      <holder>Andreas Leitner</holder>
+    </copyright>
+    <author>
+      <firstname>Andreas</firstname><surname>Leitner</surname>
+    </author>
+    <email>andreas.leitner@inf.ethz.ch</email>
+    <date>28 July 2005</date>
+  </chapterinfo>
+
+  <title>The Runtime Library</title>
+  <section>
+    <title>The Design of the Runtime Library</title>
+
+	<para>
+		The runtime library is split into two parts: the interface cluster and the implementation cluster.
+		The following image shows the classes of the interface cluster:
+	</para>		
+
+    <para>
+      <mediaobjectco>
+         <imageobjectco>
+           <imageobject>
+             <imagedata align="center" fileref="image/runtime_class_diagram.png"></imagedata>
+           </imageobject>
+         </imageobjectco>
+      </mediaobjectco>
+    </para>
+
+	</section>
+</chapter>

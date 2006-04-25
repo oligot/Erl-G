@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+
+<project name="erl_g_runtime" default="help">
+
+	<description>
+		system: "Erl-G Runtime Library Tester"
+		copyright: "Copyright (c) 2005, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<inherit>
+		<parent location="${GOBO}/misc/test.eant">
+			<redefine target="other_clean"/>
+			<redefine target="other_clobber"/>
+			<redefine target="other_install"/>
+			<redefine target="init_system"/>
+			<redefine target="test"/>
+		</parent>
+	</inherit>
+
+<!-- Implementation -->
+
+	<target name="other_clean" depend="init">
+		<description>
+			Remove other intermediary generated files.
+		</description>
+		<delete directory="${system_dir}/reflection_library"/>
+		<geant file="build.eant" target="clean" dir="${system_dir}/interpreter_example"/>
+		<delete file="${system_dir}/interpreter_output.txt"/>
+		<delete file="${system_dir}/interpreter_example/interpreter_compilation_log.txt"/>
+		<delete file="${system_dir}/interpreter_example/interpreter_install.log"/>
+
+	</target>
+
+	<target name="other_clobber" depend="init">
+		<geant file="build.eant" target="clobber" dir="${system_dir}/interpreter_example"/>
+	</target>
+
+	<target name="other_install" depend="init">
+		<geant file="build.eant" target="install" dir="${system_dir}/interpreter_example"/>
+	</target>
+
+	<target name="init_system">
+		<set name="system" value="xerl_g_runtime"/>
+		<set name="library" value="erl_g"/>
+		<set name="system_dir" value="${ERL_G}/test/runtime"/>
+		<set name="eiffel" value="ise"/>
+	</target>
+
+	<target name="test" depend="init">
+		<geant target="erl_g"/>
+		<geant target="compile_interpreter_example"/>
+		<precursor/>
+	</target>
+
+	<target name="compile_interpreter_example" depend="init">
+		<set name="compiler_suffix" value="_${eiffel}"/>
+
+		<exec executable="geant -b build.eant install &gt; interpreter_install.log 2&gt;&amp;1" dir="${system_dir}/interpreter_example"/>
+		<exec executable="geant -b build.eant compile_debug${compiler_suffix} &gt; interpreter_compilation_log.txt 2&gt;&amp;1" dir="${system_dir}/interpreter_example"/>
+	</target>
+
+	<target name="erl_g" depend="init">
+		<set name="define" value="GOBO_EIFFEL=${eiffel}"/>
+		<set name="define" value="${define} GOBO_OS=${GOBO_OS}" if="${GOBO_OS}"/>
+		<set name="define" value="${define} GOBO_CC=${GOBO_CC}" if="${GOBO_CC}"/>
+		<set name="define" value="${define} GOBO_XML_EXPAT=true" if="${GOBO_XML_EXPAT}"/>
+		<set name="define" value="${define} GOBO_DOTNET=true" if="${GOBO_DOTNET}"/>
+		<set name="define" value="${define} SE_1_0=true" if="${SE_1_0}"/>
+		<set name="define" value="${define} VE_4_1=true" if="${VE_4_1}"/>
+		<set name="void" value="--void" if="${eiffel}=ve"/>
+		<set name="void" value="" unless="${eiffel}=ve"/>
+		<set name="output_option" value="--output-dir=&quot;${system_dir}/reflection_library&quot;"/>
+		<set name="xace_filename" value="${system_dir}/system.xace"/>
+		<exec executable="erl_g ${void} --define=&quot;${define}&quot; ${output_option} ${xace_filename} PERSON INTEGER INTERNAL
+				HASH_TABLE[ANY,STRING] DEFAULT_CREATABLE DEFAULT_CREATABLE_2 DEFAULT_CREATABLE_3 ARRAYED_LIST[INTEGER] STRING_HANDLER
+				ROOT_1 ROOT_2 ROOT_3[PERSON]"
+				accept_errors="true"/>
+	</target>
+
+</project>
