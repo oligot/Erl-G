@@ -8,4 +8,3 @@
  * Fix failing test cases
  * Better liveness algorithm
  * Value of unique constant is hard coded to 0
- * Fake item to test commit list
