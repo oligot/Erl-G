@@ -19,11 +19,11 @@ inherit
 
 	KL_SHARED_STREAMS
 		export {NONE} all end
-		
+
 	KL_IMPORTED_INTEGER_ROUTINES
 		export {NONE} all end
 
-creation
+create
 
 	make
 
@@ -59,7 +59,6 @@ feature -- Generation
 			generate_class_clause
 			generate_inheritance_clause
 			generate_create_clause
-			generate_status_report_features
 			generate_access_features
 			generate_implementation_features
 			output_stream.put_string ("end")
@@ -72,7 +71,7 @@ feature {NONE} -- Implementation
 			-- Generate indexing clause for reflection class.
 		do
 			output_stream.put_line ("indexing")
-			output_stream.put_line ("%Tnote: %"Generated class. Do not edit.%"")
+			output_stream.put_line ("%Twarning: %"Generated class. Do not edit.%"")
 			output_stream.put_new_line
 		end
 
@@ -89,7 +88,7 @@ feature {NONE} -- Implementation
 		do
 			output_stream.put_line ("inherit")
 			output_stream.put_new_line
-			output_stream.put_line ("%TERL_ABSTRACT_UNIVERSE_IMP")
+			output_stream.put_line ("%TERL_UNIVERSE")
 			output_stream.put_new_line
 		end
 
@@ -104,23 +103,12 @@ feature {NONE} -- Implementation
 			output_stream.put_new_line
 		end
 
-	generate_status_report_features is
-			-- Generate features under the feature clause named "Status report".
-		do
-			output_stream.put_line ("feature -- Status report")
-			output_stream.put_new_line
-			generate_type_count_feature
-			output_stream.put_new_line
-		end
-
 	generate_access_features is
 			-- Generate features under the feature clause named "Access".
 		do
 			output_stream.put_line ("feature -- Access")
 			output_stream.put_new_line
-			generate_type_by_index_feature
-			output_stream.put_new_line
-			generate_type_by_name_feature
+			generate_class_by_name_feature
 			output_stream.put_new_line
 		end
 
@@ -129,99 +117,71 @@ feature {NONE} -- Implementation
 		do
 			output_stream.put_line ("feature {NONE} -- Implementation")
 			output_stream.put_new_line
-			generate_type_i_features
+			generate_class_i_features
 		end
 
-	generate_type_count_feature is
-			-- Generate feature `type_count'.
-		do
-			output_stream.put_string ("%Ttype_count: INTEGER is ")
-			output_stream.put_line (reflection_generator.class_name_list.count.out)
-		end
-
-	generate_type_by_index_feature is
-			-- Generate feature `type'. It makes types accessible by 
-			-- index.
-		local
-			printer: ERL_G_LOOKUP_PRINTER
-			cs: DS_LINEAR_CURSOR [DS_PAIR [ET_BASE_TYPE, STRING]]
-			list: DS_ARRAYED_LIST [STRING]
-			i: INTEGER
-			name: STRING
-		do
-			from
-				cs := reflection_generator.class_name_list.new_cursor
-				cs.start
-				create list.make (reflection_generator.class_name_list.count)
-				i := 1
-			until
-				cs.off
-			loop
-				name := ("type_").twin
-				INTEGER_.append_decimal_integer (i, name)
-				list.put_last (name)
-				cs.forth
-				i := i + 1
-			end
-			create printer.make (output_stream)
-			printer.print_item_by_index_query ("type", "ERL_TYPE", list)
-		end
-
-	generate_type_by_name_feature is
-			-- Generate feature `type_by_name'. It makes types accessible by 
+	generate_class_by_name_feature is
+			-- Generate feature `class_by_name'. It makes classes accessible by
 			-- their name.
 		local
 			printer: ERL_G_LOOKUP_PRINTER
-			cs: DS_LINEAR_CURSOR [DS_PAIR [ET_BASE_TYPE, STRING]]
+			cs: DS_HASH_TABLE_CURSOR [ET_CLASS, ET_CLASS_NAME]
 			list: DS_ARRAYED_LIST [DS_PAIR [STRING, STRING]]
 			pair: DS_PAIR [STRING, STRING]
-			i: INTEGER
 			name: STRING
 		do
 			from
-				cs := reflection_generator.class_name_list.new_cursor
+				cs := reflection_generator.universe.classes.new_cursor
 				cs.start
-				create list.make (reflection_generator.class_name_list.count)
-				i := 1
+				create list.make (reflection_generator.universe.classes.count)
 			until
 				cs.off
 			loop
-				name := ("type_").twin
-				INTEGER_.append_decimal_integer (i, name)
-				create pair.make (name, cs.item.first.to_text)
-				list.put_last (pair)
+				if
+					cs.item.implementation_checked and then
+					not cs.item.has_implementation_error
+				then
+					name := ("class_").twin
+					name.append_string (reflection_generator.universe.eiffel_class (cs.item.name).name.name.as_lower)
+						-- Note: using key from hashtable instead of item name to get alias name (if current entry represents an alias)
+					create pair.make (name, cs.key.name)
+					list.put_last (pair)
+				end
 				cs.forth
-				i := i + 1
 			end
 			create printer.make (output_stream)
-			printer.print_item_by_name_query ("type_by_name", "ERL_TYPE", list)
+			printer.print_item_by_name_query ("class_by_name", "ERL_CLASS", list)
 		end
 
-	generate_type_i_features is
-			-- Generate `type_i' features.
+	generate_class_i_features is
+			-- Generate `class_i' features.
 		local
-			cs: DS_LINEAR_CURSOR [DS_PAIR [ET_BASE_TYPE, STRING]]
-			i: INTEGER
+			cs: DS_HASH_TABLE_CURSOR [ET_CLASS, ET_CLASS_NAME]
 		do
 			from
-				cs := reflection_generator.class_name_list.new_cursor
+				cs := reflection_generator.universe.classes.new_cursor
 				cs.start
-				i := 1
 			until
 				cs.off
 			loop
-				output_stream.put_character ('%T')
-				print_name_by_index (output_stream, i)
-				output_stream.put_line (": ERL_TYPE is")
-				output_stream.put_line ("%T%Tonce")
-				output_stream.put_string ("%T%T%Tcreate {")
-				output_stream.put_string (cs.item.second)
-				output_stream.put_line ("} Result.make")
-				output_stream.put_line ("%T%Tensure")
-				output_stream.put_line ("%T%T%Ttype_not_void: Result /= Void")
-				output_stream.put_line ("%T%Tend")
-				output_stream.put_new_line
-				i := i + 1
+				if
+					cs.item.implementation_checked and then
+					not cs.item.has_implementation_error and
+					not is_alias_class (cs.key, reflection_generator.universe)
+				then
+					output_stream.put_character ('%T')
+					output_stream.put_string ("class_")
+					output_stream.put_string (cs.item.name.name.as_lower)
+					output_stream.put_line (": ERL_CLASS is")
+					output_stream.put_line ("%T%Tonce")
+					output_stream.put_string ("%T%T%Tcreate {")
+					output_stream.put_string (reflection_generator.meta_class_name (cs.item))
+					output_stream.put_line ("} Result.make")
+					output_stream.put_line ("%T%Tensure")
+					output_stream.put_line ("%T%T%Ttype_not_void: Result /= Void")
+					output_stream.put_line ("%T%Tend")
+					output_stream.put_new_line
+				end
 				cs.forth
 			end
 		end
@@ -234,17 +194,6 @@ feature {NONE} -- Implementation
 	reflection_generator: ERL_G_GENERATOR
 			-- Reflection generator for this universe
 
-	print_name_by_index (an_output_stream: like output_stream; an_index: INTEGER) is
-			-- Prints the name of the `an_index'-th type object to 
-			-- `an_output_stream'.
-		require
-			an_output_stream_not_void: an_output_stream /= Void
-			an_output_stream_is_open_write: an_output_stream.is_open_write
-		do
-			an_output_stream.put_string ("type_")
-			an_output_stream.put_integer (an_index)
-		end
-		
 invariant
 
 	output_stream_not_void: output_stream /= Void

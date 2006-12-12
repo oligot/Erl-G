@@ -15,7 +15,6 @@ inherit
 
 	KL_SHARED_EXCEPTIONS
 	KL_SHARED_ARGUMENTS
-	GEXACE_COMMAND_LINE_PARSER
 
 feature -- Status report
 
@@ -39,86 +38,98 @@ feature -- Status report
 	void_feature: BOOLEAN
 			-- Shall "Void" be treated as a feature? If `False' "Void"
 			-- will be treated as a keyword instead.
-	
-	default_types: BOOLEAN
-			-- Should default types from the target systems be reflectable
-			-- by default? Otherwise only the types explicltly listed
-			-- will be reflectable.
 
 feature -- Parsing
 
+
 	process_arguments is
-			-- Process arguments
-		require
-			error_hanlder_not_void: error_handler /= Void
+		local
+			parser: AP_PARSER
+			version_option: AP_FLAG
+			verbose_option: AP_FLAG
+			void_option: AP_FLAG
+			define_option: AP_STRING_OPTION
+			output_dir_option: AP_STRING_OPTION
+			ise_option: AP_FLAG
+			ecma_option: AP_FLAG
+			cs: DS_LINEAR_CURSOR [STRING]
 		do
-			if match_long_option ("help") then
-				error_handler.enable_verbose
-				error_handler.report_usage_message
-				error_handler.disable_verbose
-				Exceptions.die (0)
-			end
-			if match_long_option ("version") then
+			create parser.make
+			parser.set_application_description ("erl_g makes arbitrary Eiffel systems reflectable. It is used as a preprocessor.")
+			parser.set_parameters_description ("ace_filename type-name+")
+
+			create version_option.make ('V', "version")
+			version_option.set_description ("Output version information and exit")
+			parser.options.force_last (version_option)
+
+			create verbose_option.make ('v', "verbose")
+			verbose_option.set_description ("Be verbose.")
+			parser.options.force_last (verbose_option)
+
+			create void_option.make ('o', "void")
+			void_option.set_description ("Consider 'void' a keyword.")
+			parser.options.force_last (void_option)
+
+			create define_option.make ('d', "define")
+			verbose_option.set_description ("Define variable assignments for xace files")
+			parser.options.force_last (define_option)
+
+			create output_dir_option.make ('o', "output-dir")
+			output_dir_option.set_description ("Output directory for reflection library")
+			parser.options.force_last (output_dir_option)
+
+			create ise_option.make ('i', "ise")
+			ise_option.set_description ("Follow Eiffel as implemented in the latest version of EiffelStudio")
+			parser.options.force_last (ise_option)
+
+			create ecma_option.make ('e', "ecma")
+			ecma_option.set_description ("Follow Eiffel as defined in the latest ECMA Eiffel standard")
+			parser.options.force_last (ecma_option)
+
+			parser.parse_arguments
+
+			if version_option.was_found then
 				error_handler.enable_verbose
 				error_handler.report_version_message
 				error_handler.disable_verbose
 				Exceptions.die (0)
 			end
-			if match_long_option ("verbose") then
+
+			if verbose_option.was_found then
 				error_handler.enable_verbose
-				consume_option
 			end
 
-			if match_long_option ("void") then
+			if void_option.was_found then
 				void_feature := True
-				consume_option
 			end
 
-			if match_long_option ("default-types") then
-				default_types := True
-				consume_option
+			if define_option.was_found then
+				defined_variables := define_option.parameter
 			end
 
-			if match_long_option ("define") then
-				if not is_next_option_long_option or not has_next_option_value then
-					error_handler.report_missing_command_line_parameter_value_error ("--define")
-					error_handler.report_usage_error
-					Exceptions.die (1)
-				else
-					defined_variables := next_option_value
-				end
-				consume_option
+			if output_dir_option.was_found then
+				output_dirname := output_dir_option.parameter
 			end
 
-			if match_long_option ("output-dir") then
-				if not is_next_option_long_option or not has_next_option_value then
-					error_handler.report_missing_command_line_parameter_value_error ("--output-dir")
-					error_handler.report_usage_error
-					Exceptions.die (1)
-				else
-					output_dirname := next_option_value
-				end
-				consume_option
-			end
-
-			if next_option_position <= Arguments.argument_count then
-				ace_filename := Arguments.argument (next_option_position)
-				next_option_position := next_option_position + 1
-			else
+			if parser.parameters.count = 0 then
 				error_handler.report_missing_ace_filename_error
-				error_handler.report_usage_error
+				-- TODO: Display usage_instruction (currently not exported, find better way to do it.)
+				-- error_handler.report_info_message (parser.help_option.usage_instruction (parser))
 				Exceptions.die (1)
+			else
+				ace_filename := parser.parameters.first
+				from
+					create type_names.make
+					cs := parser.parameters.new_cursor
+					cs.start
+					cs.forth
+				until
+					cs.off
+				loop
+					type_names.force_last (cs.item)
+					cs.forth
+				end
 			end
-
-			from
-				create type_names.make
-			until
-				next_option_position > Arguments.argument_count
-			loop
-				type_names.force_last (Arguments.argument (next_option_position))
-				next_option_position := next_option_position + 1
-			end
-
 		end
-		
+
 end

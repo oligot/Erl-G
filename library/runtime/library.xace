@@ -11,14 +11,11 @@
 	</description>
 
 	<cluster name="erl_g_runtime" location="${ERL_G}/library/runtime">
-	  <cluster name="implementation">
-	  </cluster>
 	  <cluster name="interpreter">
 		<cluster name="expression"/>
 	  </cluster>
 	</cluster>
 
-	<mount location="${ERL_G}/library/runtime/implementation/empty_universe/library.xace" if="${ERL_G_NO_IMPLEMENTATION}"/>
-	<option name="header" value="${ERL_G}/library/runtime"/>
+	<mount location="${ERL_G}/library/runtime/empty_implementation/library.xace" if="${ERL_G_NO_IMPLEMENTATION}"/>
 
 </library>

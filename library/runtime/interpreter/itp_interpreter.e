@@ -13,9 +13,6 @@ inherit
 
 	ITP_REQUEST_PARSER
 
-	ITP_SHARED_CONSTANT_FACTORY
-		export {NONE} all end
-
 	ERL_SHARED_UNIVERSE
 		export {NONE} all end
 
@@ -107,41 +104,35 @@ feature {NONE} -- Handlers
 							a_creation_procedure_name: STRING;
 							an_argument_list: ERL_LIST [ITP_EXPRESSION]) is
 		local
-			type: ERL_TYPE
-			creation_procedure: ERL_CREATION_PROCEDURE
-			arguments: TUPLE
-			constant: ITP_CONSTANT
+			class_: ERL_CLASS
+			arguments: ARRAY [ANY]
+			actuals: STRING
+			l_class_name: STRING
 		do
 			log_message ("report_create_request start%N")
-			type := universe.type_by_name (a_type_name)
-			if type = Void then
-				report_error ("Unknown type " + a_type_name + ".")
+			create l_class_name.make (a_type_name.count)
+			create actuals.make (a_type_name.count)
+			split_type_name (a_type_name, l_class_name, actuals)
+			class_ := universe.class_by_name (l_class_name)
+			if class_ = Void then
+				report_error ("Unknown class " + l_class_name + ".")
+			elseif not class_.is_instantiatable (actuals) then
+				report_error ("Type '" + a_type_name + "' is not instantiatable.")
 			else
-				if a_creation_procedure_name = Void then
-					creation_procedure := type.default_creation_procedure
-					if creation_procedure = Void then
+				if not class_.is_valid_creation_procedure_name (actuals, a_creation_procedure_name) then
+					if a_creation_procedure_name = Void then
 						report_error ("Type " + a_type_name + " does not support default creation.")
-					end
-				else
-					creation_procedure := type.creation_procedure_by_name (a_creation_procedure_name)
-					if creation_procedure = Void then
+					else
 						report_error ("`" + a_creation_procedure_name + "' is not a valid creation procedure for type " + a_type_name + ".")
 					end
-				end
-				if creation_procedure /= Void then
-					arguments := creation_procedure.empty_arguments
-					if arguments.count /= an_argument_list.count then
-						report_error ("Invalid number of actual arguments.")
+				else
+					arguments := store.arguments (an_argument_list)
+					if arguments = Void or not class_.valid_creation_procedure_arguments (actuals, a_creation_procedure_name, arguments) then
+						report_error ("Invalid actual arguments.")
 					else
-						store.fill_arguments (arguments, an_argument_list)
-						if store.has_error then
-							report_error ("Invalid actual arguments.")
-						else
-							execute_protected (agent creation_procedure.apply (arguments))
-							if last_protected_execution_successfull then
-								constant := constant_factory.new_constant (creation_procedure.last_result, creation_procedure.type)
-								store.assign_expression (constant, a_target_variable_name)
-							end
+						execute_protected (agent class_.invoke_creation_procedure (actuals, a_creation_procedure_name, arguments))
+						if last_protected_execution_successfull then
+							store.assign_value (class_.last_result, a_target_variable_name)
 						end
 					end
 				end
@@ -154,42 +145,31 @@ feature {NONE} -- Handlers
 							a_feature_name: STRING;
 							an_argument_list: ERL_LIST [ITP_EXPRESSION]) is
 		local
-			target_reference: ITP_REFERENCE
-			type: ERL_TYPE
-			feature_: ERL_FEATURE
-			routine: ERL_ROUTINE
-			arguments: TUPLE
+			target: ANY
+			class_: ERL_CLASS
+			arguments: ARRAY [ANY]
 		do
 			log_message ("report_invoke_request start%N")
 			store.lookup_variable (a_target_variable_name)
 			if not store.last_variable_defined then
 				report_error ("Target variable `" + a_target_variable_name + "' not defined.")
 			else
-				target_reference ?= store.last_variable_value
-				if target_reference = Void then
-					report_error ("Feature calls on expanded types not yet supported.")
+				target := store.last_variable_value
+				if target = Void then
+					report_error ("Cannot invoke feature on void target.")
 				else
-					type := universe.type_by_object (target_reference.value)
-					check
-						type_not_void: type /= Void
-					end
-					feature_ := type.feature_by_name (a_feature_name)
-					if feature_ = Void then
-						report_error ("Type " + type.name + " does not have feature `" + a_feature_name + "'.")
+					class_ := universe.class_by_object (target)
+						check
+							class_not_void: class_ /= Void
+						end
+					if not class_.is_valid_feature_name (a_feature_name) then
+						report_error ("Class " + class_.name + " does not have feature `" + a_feature_name + "'.")
 					else
-						routine ?= feature_
-						if routine /= Void then
-							arguments := routine.empty_arguments
-							if arguments.count /= an_argument_list.count then
-								report_error ("Invalid number of actual arguments.")
-							else
-								store.fill_arguments (arguments, an_argument_list)
-								if store.has_error then
-									report_error ("Invalid actual arguments.")
-								else
-									execute_protected (agent routine.apply (target_reference.value, arguments))
-								end
-							end
+						arguments := store.arguments (an_argument_list)
+						if arguments = Void or not class_.valid_feature_operands (a_feature_name, target, arguments) then
+							report_error ("Invalid actual arguments.")
+						else
+							execute_protected (agent class_.invoke_feature (a_feature_name, target, arguments))
 						end
 					end
 				end
@@ -200,45 +180,36 @@ feature {NONE} -- Handlers
 
 	report_invoke_and_assign_request (a_left_hand_variable_name: STRING;
 										a_target_variable_name: STRING;
-										a_feature_name: STRING;
+										a_query_name: STRING;
 										an_argument_list: ERL_LIST [ITP_EXPRESSION]) is
 		local
-			target_reference: ITP_REFERENCE
-			type: ERL_TYPE
-			query: ERL_QUERY
-			arguments: TUPLE
-			result_constant: ITP_CONSTANT
+			target: ANY
+			class_: ERL_CLASS
+			arguments: ARRAY [ANY]
 		do
 			log_message ("report_invoke_and_assign_request start%N")
 			store.lookup_variable (a_target_variable_name)
 			if not store.last_variable_defined then
 				report_error ("Target variable `" + a_target_variable_name + "' not defined.")
 			else
-				target_reference ?= store.last_variable_value
-				if target_reference = Void then
-					report_error ("Feature calls on expanded types not yet supported.")
+				target := store.last_variable_value
+				if target = Void then
+					report_error ("Cannot invoke feature on void target.")
 				else
-					type := universe.type_by_object (target_reference.value)
+					class_ := universe.class_by_object (target)
 					check
-						type_not_void: type /= Void
+						class_not_void: class_ /= Void
 					end
-					query := type.query_by_name (a_feature_name)
-					if query = Void then
-						report_error ("Type " + type.name + " does not have query `" + a_feature_name + "'.")
+					if not class_.is_valid_query_name (a_query_name) then
+						report_error ("Class " + class_.name + " does not have query `" + a_query_name + "'.")
 					else
-						arguments := query.empty_arguments
-						if arguments.count /= an_argument_list.count then
-							report_error ("Invalid number of actual arguments.")
+						arguments := store.arguments (an_argument_list)
+						if arguments = Void or not class_.valid_feature_operands (a_query_name, target, arguments) then
+							report_error ("Invalid actual arguments.")
 						else
-							store.fill_arguments (arguments, an_argument_list)
-							if store.has_error then
-								report_error ("Invalid actual arguments.")
-							else
-								execute_protected (agent query.retrieve_value (target_reference.value, arguments))
-								if last_protected_execution_successfull then
-									result_constant := constant_factory.new_constant (query.last_result, query.result_type)
-									store.assign_expression (result_constant, a_left_hand_variable_name)
-								end
+							execute_protected (agent class_.invoke_query (a_query_name, target, arguments))
+							if last_protected_execution_successfull then
+								store.assign_value (class_.last_result, a_left_hand_variable_name)
 							end
 						end
 					end
@@ -252,8 +223,12 @@ feature {NONE} -- Handlers
 							an_expression: ITP_EXPRESSION) is
 		do
 			log_message ("report_assign_request start%N")
-			store.assign_expression (an_expression, a_left_hand_variable_name)
-			if store.has_error then
+			if store.is_expression_defined (an_expression) then
+				store.assign_expression (an_expression, a_left_hand_variable_name)
+				if store.has_error then
+					report_error ("Could not evaluate expression")
+				end
+			else
 				report_error ("Could not evaluate expression")
 			end
 			print_and_flush ("done:%N")
@@ -267,7 +242,12 @@ feature {NONE} -- Handlers
 			if not store.last_variable_defined then
 				report_error ("Variable `" + a_variable_name + "' not defined.")
 			else
-				print_line_and_flush (store.last_variable_value.type_name)
+				if store.last_variable_value = Void then
+					print_and_flush ("NONE%N")
+				else
+					print_and_flush (store.last_variable_value.generating_type)
+					print_and_flush ("%N")
+				end
 			end
 			print_and_flush ("done:%N")
 			log_message ("report_type_request end%N")
@@ -427,6 +407,33 @@ feature {NONE} -- Implementation
 		do
 			print_and_flush (multi_line_value_end_tag)
 			print_and_flush ("%N")
+		end
+
+	split_type_name (a_type_name: STRING; a_class_name: STRING; a_actuals: STRING) is
+			-- Split the type name `a_type_name' into its class name and
+			-- actuals and fill `a_class_name' and `a_actuals' correspondingly.
+			-- Typename needs to be normalized.
+		require
+			a_type_name_not_void: a_type_name /= Void
+			a_class_name_not_void: a_class_name /= Void
+			a_actuals_not_void: a_actuals /= Void
+		local
+			i: INTEGER
+			nb: INTEGER
+			in_actuals: BOOLEAN
+			char: CHARACTER
+		do
+			i := a_type_name.index_of (' ', 1)
+			if i = 0 then
+				a_class_name.share (a_type_name)
+			else
+				if i > 1 then
+					a_class_name.share (a_type_name.substring (1, i - 1))
+				end
+				if i + 1 <= a_type_name.count then
+					a_actuals.share (a_type_name.substring (i + 1, a_type_name.count))
+				end
+			end
 		end
 
 invariant

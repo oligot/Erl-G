@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<project name="erl_g_library" default="help">
+
+	<description>
+		system: "Erl-G Library Tester"
+		copyright: "Copyright (c) 2005, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<inherit>
+		<parent location="${GOBO}/misc/test.eant">
+			<redefine target="init_system"/>
+		</parent>
+	</inherit>
+
+<!-- Implementation -->
+
+	<target name="init_system">
+		<set name="system" value="xerl_g_library"/>
+		<set name="library" value="erl_g"/>
+		<set name="system_dir" value="${ERL_G}/test/library"/>
+	</target>
+
+</project>

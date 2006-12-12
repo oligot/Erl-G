@@ -19,6 +19,9 @@ inherit
 			set_up
 		end
 
+	UT_SHARED_ISE_VERSIONS
+		export {NONE} all end
+
 	KL_SHARED_FILE_SYSTEM
 		export {NONE} all end
 
@@ -56,7 +59,7 @@ feature -- Execution
 				universe.set_use_create_keyword (True)
 				universe.set_use_recast_keyword (False)
 				universe.set_use_reference_keyword (True)
-				universe.set_ise (True)
+				universe.set_ise_version (ise_latest)
 				universe.activate_processors
 				universe.parse_all
 			end
@@ -75,7 +78,7 @@ feature {NONE}  -- Constants
 	ace_filename: STRING is
 			-- Filename of the ACE file to parse in order to generate universe
 		once
-			Result := file_system.nested_pathname (execution_environment.interpreted_string ("${ERL_G}"), <<"test", "generator", "kernel", "library.xace">>)
+			Result := file_system.nested_pathname (execution_environment.interpreted_string ("${ERL_G}"), <<"test", "common", "fake_kernel", "library.xace">>)
 		ensure
 			result_not_void: Result /= Void
 		end

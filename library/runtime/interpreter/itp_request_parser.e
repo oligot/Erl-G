@@ -553,75 +553,76 @@ feature {NONE} -- Parsing
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_INTEGER_8} last_expression.make (last_string.to_integer_64.as_integer_8)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_integer_8)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("INTEGER_16") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_INTEGER_16} last_expression.make (last_string.to_integer_64.as_integer_16)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_integer_16)
 										end
-									elseif a_type_name.is_case_insensitive_equal ("INTEGER") then
+									elseif a_type_name.is_case_insensitive_equal ("INTEGER_32") or a_type_name.is_case_insensitive_equal ("INTEGER") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_INTEGER} last_expression.make (last_string.to_integer)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("INTEGER_64") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_INTEGER_64} last_expression.make (last_string.to_integer_64)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("NATURAL_8") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_NATURAL_8} last_expression.make (last_string.to_integer_64.as_natural_8)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_natural_8)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("NATURAL_16") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_NATURAL_16} last_expression.make (last_string.to_integer_64.as_natural_16)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_natural_16)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("NATURAL_32") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_NATURAL_32} last_expression.make (last_string.to_integer_64.as_natural_32)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_natural_32)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("NATURAL_64") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
 											-- TODO: We actually need `last_string.to_natural_64' here to prevent overflows!
-											create {ITP_NATURAL_64} last_expression.make (last_string.to_integer_64.as_natural_64)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_natural_64)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("BOOLEAN") then
 										if last_token /= true_token_code and last_token /= false_token_code then
 											report_and_set_error_at_position ("Expected boolean constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_BOOLEAN} last_expression.make (last_string.to_boolean)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_boolean)
 										end
-									elseif a_type_name.is_case_insensitive_equal ("CHARACTER") then
+									elseif a_type_name.is_case_insensitive_equal ("CHARACTER_8") or a_type_name.is_case_insensitive_equal ("CHARACTER") then
 										-- TODO: We need to be able to parse escaped character constants here!
+										-- TODO: We need to support CHARACTER_32 too.
 										if last_token /= character_token_code then
 											report_and_set_error_at_position ("Expected character constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_CHARACTER} last_expression.make (last_string.item (2))
+											create {ITP_CONSTANT} last_expression.make (last_string.item (1))
 										end
-									elseif a_type_name.is_case_insensitive_equal ("REAL") then
+									elseif a_type_name.is_case_insensitive_equal ("REAL_32") or a_type_name.is_case_insensitive_equal ("REAL") then
 										if last_token /= double_token_code and last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected real constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_REAL} last_expression.make (last_string.to_real)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_real)
 										end
-									elseif a_type_name.is_case_insensitive_equal ("DOUBLE") then
+									elseif a_type_name.is_case_insensitive_equal ("REAL_64") or a_type_name.is_case_insensitive_equal ("DOUBLE") then
 										if last_token /= double_token_code and last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected double constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_DOUBLE} last_expression.make (last_string.to_double)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_double)
 										end
 									else
 										report_and_set_error_at_position ("Expected basic type but got '" + a_type_name + "'.", position)
@@ -636,21 +637,21 @@ feature {NONE} -- Parsing
 				if not has_error then
 					inspect last_token
 					when character_token_code then
-						create {ITP_CHARACTER} last_expression.make (last_string.item (1))
+						create {ITP_CONSTANT} last_expression.make (last_string.item (1))
 					when double_token_code then
-						create {ITP_DOUBLE} last_expression.make (last_string.to_double)
+						create {ITP_CONSTANT} last_expression.make (last_string.to_double)
 					when false_token_code then
-						create {ITP_BOOLEAN} last_expression.make (False)
+						create {ITP_CONSTANT} last_expression.make (False)
 					when identifier_token_code then
 						create {ITP_VARIABLE} last_expression.make (last_string.twin)
 					when integer_token_code then
-						create {ITP_INTEGER} last_expression.make (last_string.to_integer)
+						create {ITP_CONSTANT} last_expression.make (last_string.to_integer)
 					when true_token_code then
-						create {ITP_BOOLEAN} last_expression.make (True)
+						create {ITP_CONSTANT} last_expression.make (True)
 					when void_token_code then
-						create {ITP_REFERENCE} last_expression.make (Void)
+						create {ITP_CONSTANT} last_expression.make (Void)
 					when default_pointer_token_code then
-						create {ITP_POINTER} last_expression.make (default_pointer)
+						create {ITP_CONSTANT} last_expression.make (default_pointer)
 					else
 						report_and_set_error_at_position ("Invalid constant or variable.", position)
 					end
@@ -856,6 +857,9 @@ feature {NONE} -- Parsing
 							end
 						end
 					end
+					if not last_string.is_double then
+						has_error := True
+					end
 				else
 					last_token := integer_token_code
 				end
@@ -1006,6 +1010,11 @@ feature {NONE} -- Parsing
 					last_token := identifier_token_code
 				end
 			end
+		ensure
+			valid_character: has_error or (last_token = character_token_code implies (last_string.count >= 1))
+			valid_double: has_error or (last_token = double_token_code implies last_string.is_double)
+			valid_identifier: has_error or (last_token = identifier_token_code implies is_valid_identifier (last_string))
+			valid_integer: has_error or (last_token = integer_token_code implies last_string.is_integer)
 		end
 
 	last_token: INTEGER

@@ -11,7 +11,19 @@ indexing
 
 class ERL_G_TYPE_ROUTINES
 
-feature -- Conversion
+feature
+
+	is_alias_class (a_class_name: ET_CLASS_NAME; a_universe: ET_UNIVERSE): BOOLEAN is
+			-- Is `a_class_name' the name of an alias class?
+			-- (Classes STRING, INTEGER, ... are typically aliased to a
+			-- sized variant.)
+		require
+			a_class_name_not_void: a_class_name /= Void
+			a_universe_not_void: a_universe /= Void
+		do
+			Result := not a_universe.eiffel_class (a_class_name).name.same_class_name (a_class_name)
+		end
+
 
 	has_feature (a_class: ET_CLASS; a_feature: ET_FEATURE): BOOLEAN is
 			-- Does `a_class' contain `a_feature'?
@@ -31,6 +43,16 @@ feature -- Conversion
 			end
 		end
 
+	is_external_feature (a_feature: ET_FEATURE): BOOLEAN is
+		require
+			a_feature_not_void: a_feature /= Void
+		local
+			external_routine: ET_EXTERNAL_ROUTINE
+		do
+			external_routine ?= a_feature
+			Result := external_routine /= Void
+		end
+
 	generic_derivation (a_class: ET_CLASS; a_universe: ET_UNIVERSE): ET_GENERIC_CLASS_TYPE is
 			-- Generic derivation `a_class'; this is a type which has `a_class' as base class
 			-- but where all formal parameters have been closed with types. The types to be used
@@ -47,26 +69,26 @@ feature -- Conversion
 			actual_parameter: ET_ACTUAL_PARAMETER
 			i: INTEGER
 		do
-  			formal_parameters := a_class.formal_parameters
+			formal_parameters := a_class.formal_parameters
 			create actual_parameters.make_with_capacity (formal_parameters.count)
 
- 			from
- 				i := formal_parameters.count
- 			until
- 				i < 1
- 			loop
- 				formal_parameter := formal_parameters.item (i).formal_parameter
- 				if formal_parameter.constraint = Void then
-	 				actual_parameter := a_universe.any_type
-	 			else
-	 				actual_parameter := formal_parameter.constraint
-	 			end
- 				actual_parameters.put_first (actual_parameter)
- 				i := i - 1
- 			end
- 			actual_parameters := actual_parameters.resolved_formal_parameters (actual_parameters)
- 			create Result.make (Void, a_class.name, actual_parameters, a_class)
- 			Result.set_unresolved_type (a_class)
+			from
+				i := formal_parameters.count
+			until
+				i < 1
+			loop
+				formal_parameter := formal_parameters.item (i).formal_parameter
+				if formal_parameter.constraint = Void then
+					actual_parameter := a_universe.any_type
+				else
+					actual_parameter := formal_parameter.constraint
+				end
+				actual_parameters.put_first (actual_parameter)
+				i := i - 1
+			end
+			actual_parameters := actual_parameters.resolved_formal_parameters (actual_parameters)
+			create Result.make (Void, a_class.name, actual_parameters, a_class)
+			Result.set_unresolved_type (a_class)
 		ensure
 			derivation_not_void: Result /= Void
 			unresolved_type_is_set: Result.unresolved_type = a_class
@@ -128,6 +150,30 @@ feature -- Conversion
 					Result := True
 				end
 			end
+		end
+
+	is_basic_class (a_class: ET_CLASS; a_universe: ET_UNIVERSE): BOOLEAN is
+			-- Is `a_class' a basic class?
+		require
+			a_class_not_void: a_class /= Void
+			a_universe_not_void: a_universe /= Void
+		do
+			Result := a_class = a_universe.boolean_class or
+				a_class = a_universe.character_class or
+				a_class = a_universe.wide_character_class or
+				a_class = a_universe.integer_class or
+				a_class = a_universe.integer_8_class or
+				a_class = a_universe.integer_16_class or
+				a_class = a_universe.integer_64_class or
+				a_class = a_universe.natural_class or
+				a_class = a_universe.natural_32_class or
+				a_class = a_universe.natural_8_class or
+				a_class = a_universe.natural_16_class or
+				a_class = a_universe.natural_64_class or
+				a_class = a_universe.real_class or
+				a_class = a_universe.double_class or
+				a_class = a_universe.pointer_class or
+				a_class = a_universe.typed_pointer_class
 		end
 
 	creation_procedure_count (a_base_type: ET_BASE_TYPE; a_base_class: ET_CLASS; a_universe: ET_UNIVERSE): INTEGER is
@@ -446,6 +492,7 @@ feature {NONE} -- Parsing class types
 					end
 				else
 					last_base_type := a_class
+					create {ET_CLASS_TYPE} last_base_type.make (Void, create {ET_IDENTIFIER}.make (a_class.name.name), a_class)
 				end
 			end
 		ensure

@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<project name="erl_g_runtime" default="help">
+
+	<description>
+		system: "Erl-G Runtime Library Tester"
+		copyright: "Copyright (c) 2005, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<inherit>
+		<parent location="${GOBO}/misc/test.eant">
+			<redefine target="other_clean"/>
+			<redefine target="other_clobber"/>
+			<redefine target="init_system"/>
+			<redefine target="test"/>
+		</parent>
+	</inherit>
+
+<!-- Implementation -->
+
+	<target name="other_clean" depend="init">
+		<description>
+			Remove other intermediary generated files.
+		</description>
+		<geant file="build.eant" target="clean" dir="${system_dir}/interpreter_example"/>
+		<delete file="${system_dir}/interpreter_output.txt"/>
+		<delete file="${system_dir}/interpreter_example/interpreter_compilation_log.txt"/>
+		<delete file="${system_dir}/interpreter_example/interpreter_install.log"/>
+
+	</target>
+
+	<target name="other_clobber" depend="init">
+		<geant file="build.eant" target="clobber" dir="${system_dir}/interpreter_example"/>
+	</target>
+
+	<target name="init_system">
+		<set name="system" value="xerl_g_interpreter"/>
+		<set name="library" value="erl_g"/>
+		<set name="system_dir" value="${ERL_G}/test/interpreter"/>
+		<set name="eiffel" value="ise"/>
+	</target>
+
+	<target name="test" depend="init">
+		<geant target="compile_interpreter_example"/>
+		<precursor/>
+	</target>
+
+	<target name="compile_interpreter_example" depend="init">
+		<set name="compiler_suffix" value="_${eiffel}"/>
+
+		<exec executable="geant -b build.eant install &gt; interpreter_install.log 2&gt;&amp;1" dir="${system_dir}/interpreter_example"/>
+		<exec executable="geant -b build.eant compile_debug${compiler_suffix} &gt; interpreter_compilation_log.txt 2&gt;&amp;1" dir="${system_dir}/interpreter_example"/>
+	</target>
+
+</project>

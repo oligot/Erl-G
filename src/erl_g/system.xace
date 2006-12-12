@@ -25,12 +25,7 @@
 		<option name="msil_generation" value="true"/>
 		<option name="line_generation" value="true"/>
 	</option>
-	<option if="${GOBO_EIFFEL}=se">
-		<option name="warning" value="none"/>
-		<option name="case_insensitive" value="false"/>
-	</option>
 
-	<cluster name="erl_g_ve" location="." if="${GOBO_EIFFEL}=ve"/>
 	<cluster name="erl_g" location="${ERL_G}/src/erl_g"/>
 	<cluster name="gexace" location="${GOBO}/src/gexace"/>
 

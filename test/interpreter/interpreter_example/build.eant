@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+
+<project name="interpreter" default="help">
+
+  <description>
+    description: "Eiffel Ant file for 'interpreter'"
+    system: "interpreter"
+    copyright: "Copyright (c) 2005, Andreas Leitner and others"
+    license: "Eiffel Forum License v2 (see forum.txt)"
+    date: "$Date$"
+    revision: "$Revision$"
+  </description>
+
+  <inherit>
+    <parent location="${GOBO}/misc/eiffel.eant">
+      <redefine target="init_system"/>
+      <redefine target="other_install"/>
+      <redefine target="other_clean"/>
+    </parent>
+  </inherit>
+
+
+  <!-- Implementation -->
+
+  <target name="init_system">
+    <set name="system" value="interpreter_example"/>
+    <set name="system_dir" value="${ERL_G}/test/interpreter/interpreter_example"/>
+  </target>
+
+  <target name="other_install" depend="init">
+    <description>
+      Generate reflection meta-classes.
+    </description>
+    <set name="eiffel" value="ise"/>
+    <set name="type_list" value="LINKED_LIST[STRING_8] SPECIAL[INTEGER_32]"/>
+    <geant target="erl_g"/>
+  </target>
+
+  <target name="other_clean" depend="init">
+    <description>
+      Delete reflection meta-classes.
+    </description>
+    <delete directory="reflection_library"/>
+  </target>
+
+  <target name="erl_g" depend="init">
+    <description>
+      Invoke the 'erl_g' tool on the current system. Make classes in
+      ${type_list} reflectable. If ${common_types} is defined, make
+      common types reflectable in addition.
+    </description>
+
+    <set name="define" value="GOBO_EIFFEL=${eiffel}"/>
+    <set name="define" value="${define} GOBO_OS=${GOBO_OS}" if="${GOBO_OS}"/>
+    <set name="define" value="${define} GOBO_CC=${GOBO_CC}" if="${GOBO_CC}"/>
+    <set name="define" value="${define} GOBO_XML_EXPAT=true" if="${GOBO_XML_EXPAT}"/>
+    <set name="define" value="${define} GOBO_DOTNET=true" if="${GOBO_DOTNET}"/>
+    <set name="options" value=""/>
+    <exec executable="erl_g ${options} --define=&quot;${define}&quot; ${system_dir}/system.xace ${type_list}"/>
+  </target>
+
+</project>

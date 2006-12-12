@@ -1,0 +1,15 @@
+x := 3
+:type x
+x := 1.0
+:type x
+x := 'a'
+:type x
+create {STRING_8} x.make_empty
+:type x
+create {LINKED_LIST [STRING_8]} x.make
+:type x
+create {INTERNAL} x
+:type x
+x := Void
+:type x
+:quit

@@ -1,0 +1,14 @@
+create {SPECIAL [INTEGER_32]} s.make (5)
+s.put (1, 0)
+s.put (2, 1)
+s.put (3, 2)
+i := s.item (0)
+io := s.io
+io.put_integer (i)
+i := s.item (1)
+io.put_integer (i)
+i := s.capacity
+io.put_integer (i)
+i := s.count
+io.put_integer (i)
+:quit

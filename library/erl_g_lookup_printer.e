@@ -77,9 +77,6 @@ feature -- Printing
 			an_item_type_name_not_empty: not an_item_type_name.is_empty
 			an_element_list_not_void: an_element_list /= Void
 			an_element_list_does_not_have_void: not an_element_list.has (Void)
-		local
-			cs: DS_LINEAR_CURSOR [DS_PAIR [STRING, STRING]]
-			i: INTEGER
 		do
 			output_stream.put_character ('%T')
 			output_stream.put_string (a_query_name)
@@ -87,6 +84,23 @@ feature -- Printing
 			output_stream.put_string (an_item_type_name)
 			output_stream.put_line (" is")
 			output_stream.put_line ("%T%Tdo")
+			print_item_by_name_switch_block ("a_name", an_element_list)
+			output_stream.put_line ("%T%Tend")
+		end
+
+	print_item_by_name_switch_block (a_key_name: STRING;
+												an_element_list: DS_LINEAR [DS_PAIR [STRING, STRING]]) is
+			-- Generate a if/elseif swtichblock that allows to access the
+			-- elements by its key. TODO: The generated code could be
+			-- further optimized to inspect on characters.
+		require
+			a_key_name_not_void: a_key_name /= Void
+			an_element_list_not_void: an_element_list /= Void
+			an_element_list_does_not_have_void: not an_element_list.has (Void)
+		local
+			cs: DS_LINEAR_CURSOR [DS_PAIR [STRING, STRING]]
+			i: INTEGER
+		do
 			from
 				cs := an_element_list.new_cursor
 				cs.start
@@ -96,15 +110,24 @@ feature -- Printing
 			loop
 				if i > nested_if_count then
 					output_stream.put_line ("%T%T%Tend")
-					output_stream.put_string ("%T%T%Tif a_name.is_equal (%"")
+					output_stream.put_string ("%T%T%Tif ")
 					i := 1
 				elseif cs.is_first then
-					output_stream.put_string ("%T%T%Tif a_name.is_equal (%"")
+					output_stream.put_string ("%T%T%Tif ")
 				else
-					output_stream.put_string ("%T%T%Telseif a_name.is_equal (%"")
+					output_stream.put_string ("%T%T%Telseif ")
 				end
-				output_stream.put_string (cs.item.second)
-				output_stream.put_line ("%") then")
+
+				output_stream.put_string (a_key_name)
+
+				if cs.item.second = Void then
+					output_stream.put_string (" = Void ")
+				else
+					output_stream.put_string (".is_equal (%"")
+					output_stream.put_string (cs.item.second)
+					output_stream.put_string ("%")")
+				end
+				output_stream.put_line (" then")
 				output_stream.put_string ("%T%T%T%TResult := ")
 				output_stream.put_line (cs.item.first)
 				i := i + 1
@@ -113,7 +136,6 @@ feature -- Printing
 			if an_element_list.count > 0 then
 				output_stream.put_line ("%T%T%Tend")
 			end
-			output_stream.put_line ("%T%Tend")
 		end
 
 	print_item_by_index_query (a_query_name: STRING;

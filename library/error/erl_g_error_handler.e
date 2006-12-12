@@ -80,12 +80,6 @@ feature -- Reporting messages
 			report_info (Version_message)
 		end
 
-	report_usage_message is
-			-- Report usage message.
-		do
-			report_info (Usage_message)
-		end
-
 feature -- Reporting errors
 
 	report_missing_command_line_parameter_error (a_parameter_name: STRING) is
@@ -117,7 +111,7 @@ feature -- Reporting errors
 	report_missing_ace_filename_error is
 			-- Report that no ace filename has been provided.
 		do
-			report_error_message ("No (X)Ace filename has been provided. Please provide one for the system that you want to make reflectable.")
+			report_error_message ("No ace-filename has been provided. Please provide one for the system that you want to make reflectable.")
 		end
 
 	report_invalid_or_unknown_type_error (a_type_name: STRING) is
@@ -129,12 +123,6 @@ feature -- Reporting errors
 		do
 			a_text := "Type " + a_type_name + " is either invalid or unknown."
 			report_error_message (a_text)
-		end
-
-	report_usage_error is
-			-- Report usage error.
-		do
-			report_error (Usage_message)
 		end
 
 	report_cannot_read_error (a_filename: STRING) is
@@ -180,15 +168,6 @@ feature -- Reporting
 
 feature
 
-	Usage_message: UT_USAGE_MESSAGE is
-			-- Erl-G usage message
-		once
-			create Result.make
-			("%T[--help] [--version] [--verbose] [--void] [--default-types] [--define=<...>] [--output-dir=<...>] ace_filename  type-name+")
-		ensure
-			usage_message_not_void: Result /= Void
-		end
-
 	Version_message: UT_MESSAGE is
 			-- 'Version' message
 		once
@@ -200,7 +179,7 @@ feature
 	Version_number: STRING is
 			-- Current version number of erl_g
 		once
-			Result := "1.1.0"
+			Result := "1.2.0"
 		ensure
 			version_number_not_void: Result /= Void
 		end

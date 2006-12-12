@@ -25,6 +25,9 @@ inherit
 	KL_SHARED_EXECUTION_ENVIRONMENT
 		export {NONE} all end
 
+	UT_SHARED_ISE_VERSIONS
+		export {NONE} all end
+
 create
 
 	execute
@@ -43,10 +46,9 @@ feature -- Execution
 			a_universe: ET_UNIVERSE
 			nb: INTEGER
 		do
-			make
 			Arguments.set_program_name ("erl_g")
-			output_dirname := "reflection_library"
 			create error_handler.make
+			output_dirname := "reflection_library"
 			process_arguments
 
 			create a_file.make (ace_filename)
@@ -143,7 +145,7 @@ feature {NONE} -- Processing
 			a_universe.set_use_create_keyword (True)
 			a_universe.set_use_recast_keyword (False)
 			a_universe.set_use_reference_keyword (True)
-			a_universe.set_ise (True)
+			a_universe.set_ise_version (ise_latest)
 			if void_feature then
 				a_universe.set_use_void_keyword (False)
 			else
@@ -162,10 +164,6 @@ feature {NONE} -- Processing
 			l_base_type: ET_BASE_TYPE
 		do
 			create l_generator.make (a_universe)
-			if default_types then
-				l_generator.mark_default_types_reflectable
-			end
-
 			from
 				cs := type_names.new_cursor
 				cs.start
@@ -176,7 +174,7 @@ feature {NONE} -- Processing
 				if l_base_type = Void then
 					error_handler.report_invalid_or_unknown_type_error (cs.item)
 				else
-					l_generator.mark_type_reflectable (l_base_type)
+					l_generator.mark_type_creatable (l_base_type)
 				end
 				cs.forth
 			end

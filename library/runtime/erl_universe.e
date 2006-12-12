@@ -9,37 +9,51 @@ indexing
 
 deferred class ERL_UNIVERSE
 
-feature -- Status report
+inherit
 
-	type_count: INTEGER is
-			-- Number of reflectable types
-		deferred
-		ensure
-			type_count_positive: Result >= 0
+	INTERNAL
+		export {NONE} all end
+
+feature {NONE} -- Initialization
+
+	make is
+		do
+			erl_class_id := -2
 		end
 
 feature -- Access
 
-	type (an_index: INTEGER): ERL_TYPE is
-			-- Type at index `an_index'
-		require
-			valid_index: an_index > 0 and an_index <= type_count
-		deferred
-		ensure
-			type_not_void: Result /= Void
-		end
-
-	type_by_name (a_name: STRING): ERL_TYPE is
-			-- Type with name `a_name', or `Void' if no such type or type is not
-			-- reflectable
+	class_by_name (a_name: STRING): ERL_CLASS is
+			-- Class with name `a_name', or `Void' if no such class
 		require
 			a_name_not_void: a_name /= Void
 		deferred
 		end
 
-	type_by_object (an_object: ANY): ERL_TYPE is
+	class_by_object (an_object: ANY): ERL_CLASS is
 			-- Type for object `an_object'
-		deferred
+		do
+			if an_object = Void then
+				Result := class_by_name ("NONE")
+			else
+				if erl_class_id = -2 then
+					erl_class_id := dynamic_type_from_string ("ERL_CLASS")
+				end
+				if erl_class_id >= 0 and is_instance_of (an_object, erl_class_id) then
+					Result := class_by_name ("ERL_CLASS")
+				else
+					if class_name (an_object).is_equal ("ANY") then
+							-- Workaround: `INTERNAL.type_name' gives wrong info for objects of type ANY
+						Result := class_by_name ("ANY")
+					else
+						Result := class_by_name (class_name (an_object))
+					end
+				end
+			end
 		end
+
+feature {NONE} -- Implementation
+
+	erl_class_id: INTEGER
 
 end

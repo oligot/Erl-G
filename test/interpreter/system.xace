@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+
+<system name="xerl_g_interpreter">
+	<description>
+		system: "Erl-G Interpreter Tester"
+		copyright: "Copyright (c) 2005, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<root class="XERL_G_INTERPRETER" creation="make"/>
+	<option name="console_application" value="true"/>
+	<option unless="${DEBUG}">
+		<option name="assertion" value="none"/>
+		<option name="garbage_collector" value="none"/>
+		<option name="finalize" value="true"/>
+	</option>
+	<option if="${DEBUG}">
+		<option name="assertion" value="all"/>
+		<option name="garbage_collector" value="internal"/>
+		<option name="finalize" value="false"/>
+	</option>
+	<option if="${GOBO_DOTNET}">
+		<option name="msil_generation" value="true"/>
+		<option name="line_generation" value="true"/>
+	</option>
+
+	<cluster name="erl_g_interpreter_tester" location="${ERL_G}/test/interpreter" prefix="test_">
+		<cluster name="TESTGEN" unless="${ERL_G_NO_IMPLEMENTATION}"/>
+	</cluster>
+	<mount location="${GOBO}/library/kernel.xace"/>
+	<mount location="${GOBO}/library/test/library_skl.xace"/>
+	<mount location="${GOBO}/library/kernel/library.xace"/>
+	<mount location="${GOBO}/library/structure/library.xace"/>
+	<mount location="${GOBO}/library/utility/library.xace"/>
+	<mount location="${GOBO}/library/pattern/library.xace"/>
+	<mount location="${GOBO}/library/string/library.xace"/>
+</system>

@@ -149,10 +149,12 @@
 			in all subdirectories.
 		</description>
 
-		<geant file="build.eant" target="${target}" dir="generator"/>
-		<geant file="build.eant" target="clean" dir="generator" if="${do_clean}"/>
-		<geant file="build.eant" target="${target}" dir="runtime"/>
-		<geant file="build.eant" target="clean" dir="runtime" if="${do_clean}"/>
+		<geant file="build.eant" target="${target}" dir="library" fork="false"/>
+		<geant file="build.eant" target="clean" dir="library" if="${do_clean}" fork="false"/>
+		<geant file="build.eant" target="${target}" dir="generation" fork="false"/>
+		<geant file="build.eant" target="clean" dir="generation" if="${do_clean}" fork="false"/>
+		<geant file="build.eant" target="${target}" dir="interpreter" fork="false"/>
+		<geant file="build.eant" target="clean" dir="interpreter" if="${do_clean}" fork="false"/>
 	</target>
 
 </project>

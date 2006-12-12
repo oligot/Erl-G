@@ -14,20 +14,12 @@ class ERL_G_GENERATOR
 
 inherit
 
-	ERL_SHARED_DEBUG_MODE
-		export {NONE} all end
-
 	ERL_G_TYPE_ROUTINES
-		export {NONE} all end
-
-	ET_SHARED_CLASS_NAME_TESTER
 		export {NONE} all end
 
 	ET_SYSTEM
 		rename
 			make as make_system
-		redefine
-			activate_dynamic_type_set_builder
 		end
 
 	KL_SHARED_STREAMS
@@ -49,6 +41,7 @@ feature {NONE} -- Initialization
 			-- Create new reflection universe based on the gelint
 			-- universe `a_universe'.
 		do
+			create creatable_types.make_map_default
 			make_system (a_universe)
 			universe.activate_processors
 			activate_dynamic_type_set_builder
@@ -56,52 +49,89 @@ feature {NONE} -- Initialization
 			universe.compile_degree_4
 			universe.compile_degree_3
 			compile_kernel
+			mark_default_types_creatable
+		end
+
+feature -- Status report
+
+	is_type_creatable (a_type: ET_BASE_TYPE): BOOLEAN is
+			-- Is `a_type' marked creatable?
+		require
+			a_type_not_void: a_type /= Void
+		local
+			list: DS_LINEAR [ET_BASE_TYPE]
+		do
+			list := creatable_types_of_class (a_type.direct_base_class (universe))
+			Result := list /= Void and then list.has (a_type)
 		end
 
 feature -- Element change
 
-	mark_type_reflectable (a_type: ET_BASE_TYPE) is
-			-- Mark type `a_type' reflectable.
+	mark_type_creatable (a_type: ET_BASE_TYPE) is
+			-- Mark type `a_type' creatable.
 		require
 			a_type_not_void: a_type /= Void
+			not_marked: not is_type_creatable (a_type)
 		local
-			l_dynamic_type: ET_DYNAMIC_TYPE
-			l_queries: ET_QUERY_LIST
-			l_procedures: ET_PROCEDURE_LIST
-			l_query: ET_QUERY
-			l_procedure: ET_PROCEDURE
-			l_class: ET_CLASS
-			nb: INTEGER
-			i: INTEGER
+			list: DS_ARRAYED_LIST [ET_BASE_TYPE]
+			base_class: ET_CLASS
 		do
-			l_class := a_type.direct_base_class (universe)
-			if not has_dynamic_type (a_type) then
-				l_dynamic_type := dynamic_type (a_type, a_type)
-				l_queries := l_class.queries
-				nb := l_class.queries.count
-				from i := 1 until i > nb loop
-					l_query := l_queries.item (i)
-					mark_feature_reflectable (l_dynamic_type, a_type, l_query)
-					i := i + 1
-				end
-				l_procedures := l_class.procedures
-				nb := l_class.procedures.count
-				from i := 1 until i > nb loop
-					l_procedure := l_procedures.item (i)
-					mark_feature_reflectable (l_dynamic_type, a_type, l_procedure)
-					i := i + 1
-				end
+			base_class := a_type.direct_base_class (universe)
+			creatable_types.search (base_class)
+			if creatable_types.found then
+				list := creatable_types.found_item
+			else
+				create list.make_default
+				creatable_types.force (list, base_class)
 			end
-	end
+			list.force_last (a_type)
+		end
 
-	mark_default_types_reflectable is
-			-- Mark all classes reflectable. Note that this will not
-			-- make all types reflectable, since there can be
-			-- infintely many. Every non generic class, will be made
-			-- reflectable. For every generic class, the standard generic
-			-- derivation will be made reflectable. Generic classes that have
-			-- deferred constraints, but a create clause will not be made
-			-- reflectable however.
+feature -- Generation
+
+	generate_all (a_pathname: STRING) is
+			-- Generate both the reflection universe class and the
+			-- reflection type classes for all types marked reflectible.
+			-- Generate all files into the directory `a_pathname'.
+			-- Set `has_fatal_error' to `True' if generation cannot be
+			-- completed.
+		require
+			a_pathname_not_void: a_pathname /= Void
+			a_pathname_not_empty: a_pathname.count > 0
+		do
+			generate_universe_class (a_pathname)
+			generate_class_classes (a_pathname)
+		end
+
+feature {ERL_G_UNIVERSE_GENERATOR, ERL_G_CLASS_GENERATOR} -- Features for file generators
+
+	meta_class_name (a_class: ET_CLASS): STRING is
+			-- Class name of meta class for class `a_class'
+		do
+			create Result.make (("ERL_CLASS_IMP_").count + a_class.name.name.count)
+			Result.append_string ("ERL_CLASS_IMP_")
+			Result.append_string (a_class.name.name)
+		ensure
+			name_not_void: Result /= Void
+			name_not_empty: not Result.is_empty
+		end
+
+	creatable_types_of_class (a_class: ET_CLASS): DS_LINEAR [ET_BASE_TYPE] is
+			-- Is `a_type' marked creatable?
+		do
+			creatable_types.search (a_class)
+			if creatable_types.found then
+				Result := creatable_types.found_item
+			end
+		ensure
+			list_not_empty: Result /= Void implies not Result.has (Void)
+		end
+
+feature {NONE} -- Implementation
+
+	mark_default_types_creatable is
+			-- Mark default generic derivations of all classes as
+			-- creatable.
 		local
 			l_class: ET_CLASS
 			l_class_type: ET_CLASS_TYPE
@@ -118,98 +148,29 @@ feature -- Element change
 					else
 						l_class_type := l_class
 					end
-					mark_type_reflectable (l_class_type)
+					if not is_type_creatable (l_class_type) then
+						-- Due to type aliasing we need to make sure not to add a type twice.
+						mark_type_creatable (l_class_type)
+					end
 				end
 				l_cursor.forth
 			end
 		end
 
-feature -- Generation
-
-	generate_all (a_pathname: STRING) is
-			-- Generate both the reflection universe class and the
-			-- reflection type classes for all types marked reflectible.
-			-- Generate all files into the directory `a_pathname'.
-			-- Set `has_fatal_error' to `True' if generation cannot be
-			-- completed.
-		require
-			a_pathname_not_void: a_pathname /= Void
-			a_pathname_not_empty: a_pathname.count > 0
-		do
-			build_dynamic_type_sets
-			build_class_name_list
-			generate_reflection_universe_class (a_pathname)
-			generate_reflection_type_classes (a_pathname)
-		end
-
-feature -- Processors
-
-	activate_dynamic_type_set_builder is
-			-- Activate dynamic type set builder.
-		do
-			if dynamic_type_set_builder = null_dynamic_type_set_builder then
-				create {ET_DYNAMIC_TYPE_BUILDER} dynamic_type_set_builder.make (Current)
-			end
-		end
-
-feature {ERL_G_UNIVERSE_GENERATOR, ERL_G_TYPE_GENERATOR} -- Features for file generators
-
-	class_name_list: DS_LIST [DS_PAIR [ET_BASE_TYPE, STRING]]
-			-- List of tuples containing the reflectable base types and
-			-- their corresponding reflection class names
-
-feature {NONE} -- Implementation
-
-	build_class_name_list is
-			-- Build table that maps to each Eiffel types a class name
-			-- for its meta-class. The table will be made available
-			-- via `class_name_list'.
-		local
-			nb: INTEGER
-			i: INTEGER
-			l_dynamic_type: ET_DYNAMIC_TYPE
-			l_base_type: ET_BASE_TYPE
-			name: STRING
-			pair: DS_PAIR [ET_BASE_TYPE, STRING]
-		do
-			nb := dynamic_types.count
-			create {DS_ARRAYED_LIST [DS_PAIR [ET_BASE_TYPE, STRING]]} class_name_list.make (nb)
-			from
-				i := 1
-			until
-				i > nb
-			loop
-				l_dynamic_type := dynamic_types.item (i)
-				l_base_type := l_dynamic_type.base_type
-				name := ("ERL_TYPE_IMP_").twin
-				INTEGER_.append_decimal_integer (i, name)
-				name.append_character ('_')
-				name.append_string (l_base_type.direct_base_class (universe).name.name)
-				create pair.make (l_base_type, name)
-				class_name_list.put_last (pair)
-				i := i + 1
-			end
-		ensure
-			class_name_list_not_void: class_name_list /= Void
-		end
-
-	generate_reflection_universe_class (a_pathname: STRING) is
+	generate_universe_class (a_pathname: STRING) is
 			-- Generate the reflection universe class.
 			-- Generate the file into the directory `a_pathname'.
 			-- Set `has_fatal_error' to `True' if generation cannot be
 			-- completed.
 		require
 			a_pathname_not_void: a_pathname /= Void
-			class_names_available: class_name_list /= Void
 		local
 			reflection_universe_generator: ERL_G_UNIVERSE_GENERATOR
 			file: KL_TEXT_OUTPUT_FILE
 		do
 			create reflection_universe_generator.make (Current)
 			create file.make (file_system.pathname (a_pathname, "erl_universe_imp.e"))
-			debug_mode.disable
 			file.recursive_open_write
-			debug_mode.enable
 			if file.is_open_write then
 				reflection_universe_generator.generate (file)
 				file.close
@@ -221,143 +182,55 @@ feature {NONE} -- Implementation
 			end
 		end
 
-	generate_reflection_type_classes  (a_pathname: STRING) is
-			-- Generate reflection type classes for all types makred reflectible.
-			-- Generate all files into the directory `a_pathname'.
-			-- Set `has_fatal_error' to `True' if generation cannot be
+	generate_class_classes  (a_pathname: STRING) is
+			-- Generate meta-classes for all classes in the universe.
+			-- Generate all files into the directory `a_pathname'.  Set
+			-- `has_fatal_error' to `True' if generation cannot be
 			-- completed.
 		require
 			a_pathname_not_void: a_pathname /= Void
-			class_names_available: class_name_list /= Void
 		local
-			cs: DS_LINEAR_CURSOR [DS_PAIR [ET_BASE_TYPE, STRING]]
-			reflection_type_generator: ERL_G_TYPE_GENERATOR
+			reflection_class_generator: ERL_G_CLASS_GENERATOR
 			file: KL_TEXT_OUTPUT_FILE
 			filename: STRING
+			cs: DS_HASH_TABLE_CURSOR [ET_CLASS, ET_CLASS_NAME]
+			class_name: STRING
 		do
-			create reflection_type_generator.make (Current)
+			create reflection_class_generator.make (Current)
 			from
-				cs := class_name_list.new_cursor
+				cs := universe.classes.new_cursor
 				cs.start
 			until
 				cs.off
 			loop
-				filename := cs.item.second.as_lower
-				filename.append_string (".e")
-				create file.make (file_system.pathname (a_pathname, filename))
-				file.recursive_open_write
-				if file.is_open_write then
-					reflection_type_generator.generate (file, cs.item.first, cs.item.second)
-					file.close
-					if reflection_type_generator.has_fatal_error then
+				if not cs.item.implementation_checked or else cs.item.has_implementation_error then
+					set_fatal_error
+				else
+					class_name := meta_class_name (cs.item)
+					filename := class_name.as_lower
+					filename.append_string (".e")
+					create file.make (file_system.pathname (a_pathname, filename))
+					file.recursive_open_write
+					if file.is_open_write then
+						reflection_class_generator.generate (file, cs.item)
+						file.close
+						if reflection_class_generator.has_fatal_error then
+							has_fatal_error := True
+						end
+					else
 						has_fatal_error := True
 					end
-				else
-					has_fatal_error := True
 				end
 				cs.forth
 			end
 		end
 
-	mark_feature_reflectable (a_dynamic_type: ET_DYNAMIC_TYPE; a_type: ET_BASE_TYPE; a_feature: ET_FEATURE) is
-			-- Mark `a_feature' of static type `a_type' and dynamic type `a_dynamic_type' reflectable.
-		require
-			a_dynamic_type_not_void: a_dynamic_type /= Void
-			a_feature_not_void: a_feature /= Void
-		local
-			l_query: ET_QUERY
-			l_procedure: ET_PROCEDURE
-			l_dynamic_feature: ET_DYNAMIC_FEATURE
-			i: INTEGER
-			arguments: ET_FORMAL_ARGUMENT_LIST
-			count: INTEGER
-		do
-			l_query ?= a_feature
-			l_procedure ?= a_feature
-			check
-				exclusivness: l_query /= Void xor l_procedure /= Void
-			end
-			if l_query /= Void then
-				mark_type_reflectable (l_query.type.base_type (a_type, universe))
-				l_dynamic_feature := a_dynamic_type.dynamic_query (l_query, Current)
-			else
-				l_dynamic_feature := a_dynamic_type.dynamic_procedure (l_procedure, Current)
-			end
-			arguments := a_feature.arguments
-			if arguments /= Void then
-				from
-					i := 1
-					count := arguments.count
-				until
-					i > count
-				loop
-					mark_type_reflectable (arguments.item (i).type.base_type (a_type, universe))
-					i := i + 1
-				end
-			end
-		end
-
-	has_dynamic_type (a_type: ET_BASE_TYPE): BOOLEAN is
-			-- Is there a dynamic type for `a_type' already?
-		require
-			a_type_not_void: a_type /= Void
-		local
-			cs: DS_LINEAR_CURSOR [ET_DYNAMIC_TYPE]
-		do
-			from
-				cs := dynamic_types.new_cursor
-				cs.start
-			until
-				cs.off or Result
-			loop
-				if cs.item.base_type.same_named_type (a_type, a_type, cs.item.base_type, universe) then
-					Result := True
-				else
-					cs.forth
-				end
-			end
-			cs.go_after
-		end
-
-
-feature {NONE} -- Assertions helpers
-
-	is_valid_pair (a_pair: DS_PAIR [ET_BASE_TYPE, STRING]): BOOLEAN is
-			-- Is `a_pair's valid?
-		do
-			Result := a_pair /= Void and then
-					a_pair.first /= Void and then
-					a_pair.second /= Void and then
-					a_pair.first.is_valid_context
-		ensure
-			definition: Result = (a_pair /= Void and then
-										 a_pair.first /= Void and then
-										 a_pair.second /= Void and then
-										 a_pair.first.is_valid_context)
-		end
-
-	is_class_name_list_valid: BOOLEAN is
-			-- Are all types in `class_name_list' valid contexts?
-		local
-			cs: DS_LINEAR_CURSOR [DS_PAIR [ET_BASE_TYPE, STRING]]
-		do
-			Result := True
-			from
-				cs := class_name_list.new_cursor
-				cs.start
-			until
-				cs.off or not Result
-			loop
-				if not is_valid_pair (cs.item) then
-					Result := False
-				end
-				cs.forth
-			end
-			cs.go_after
-		end
+	creatable_types: DS_HASH_TABLE [DS_ARRAYED_LIST [ET_BASE_TYPE], ET_CLASS]
+			-- Types that are creatable (key is corresponding base class)
 
 invariant
 
-	class_name_list_valid: class_name_list /= Void implies is_class_name_list_valid
+	creatable_types_not_void: creatable_types /= Void
+	creatable_types_list_not_void: not creatable_types.has (Void)
 
 end
