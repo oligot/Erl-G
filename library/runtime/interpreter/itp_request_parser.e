@@ -605,8 +605,7 @@ feature {NONE} -- Parsing
 											create {ITP_CONSTANT} last_expression.make (last_string.to_boolean)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("CHARACTER_8") or a_type_name.is_case_insensitive_equal ("CHARACTER") then
-										-- TODO: We need to be able to parse escaped character constants here!
-										-- TODO: We need to support CHARACTER_32 too.
+											-- TODO: We need to support CHARACTER_32 too.
 										if last_token /= character_token_code then
 											report_and_set_error_at_position ("Expected character constant but got '" + last_string + "'.", position)
 										else
@@ -906,91 +905,7 @@ feature {NONE} -- Parsing
 					-- Possible tokens:
 					--   char
 				last_token := character_token_code
-				forth
-				if end_of_input then
-					report_and_set_error_at_position ("Expected character constant, not end of input.", position)
-				else
-					last_string.append_character (item)
-					if item = '%%' then
-						forth
-						if end_of_input then
-							report_and_set_error_at_position ("Expected character constant, not end of input.", position)
-						else
-							inspect item
-							when 'A' then
-								last_string.append_character ('%A')
-							when 'B' then
-								last_string.append_character ('%B')
-							when 'C' then
-								last_string.append_character ('%C')
-							when 'D' then
-								last_string.append_character ('%D')
-							when 'F' then
-								last_string.append_character ('%F')
-							when 'H' then
-								last_string.append_character ('%H')
-							when 'L' then
-								last_string.append_character ('%L')
-							when 'N' then
-								last_string.append_character ('%N')
-							when 'Q' then
-								last_string.append_character ('%Q')
-							when 'R' then
-								last_string.append_character ('%R')
-							when 'S' then
-								last_string.append_character ('%S')
-							when 'T' then
-								last_string.append_character ('%T')
-							when 'U' then
-								last_string.append_character ('%U')
-							when 'V' then
-								last_string.append_character ('%V')
-							when '%%' then
-								last_string.append_character ('%%')
-							when '%'' then
-								last_string.append_character ('%'')
-							when '%"' then
-								last_string.append_character ('%"')
-							when '%(' then
-								last_string.append_character ('%(')
-							when '%)' then
-								last_string.append_character ('%)')
-							when '%<' then
-								last_string.append_character ('%<')
-							when '%>' then
-								last_string.append_character ('%>')
-							when '/' then
-								last_string.append_character ('/')
-								from
-									last_string.append_character (item)
-									forth
-								until
-									end_of_input or else not is_number (item)
-								loop
-									last_string.append_character (item)
-									forth
-								end
-								if end_of_input then
-									report_and_set_error_at_position ("Expected '/' , but got end of input.", position)
-								elseif item /= '/' then
-									report_and_set_error_at_position ("Expected '/' , but got '" + item.out + "'.", position)
-								else
-									last_string.append_character (item)
-								end
-							else
-								report_and_set_error_at_position ("Expected character constant, but got '" + item.out + "'.", position)
-							end
-						end
-					end
-					forth
-					if end_of_input then
-						report_and_set_error_at_position ("Expected character constant, not end of input.", position)
-					elseif item /= '%'' then
-						report_and_set_error_at_position ("Expected ''', not end of input.", position)
-					else
-						forth
-					end
-				end
+				parse_character
 			when 'v', 'V' then
 					-- Possible tokens:
 					--   void
@@ -1011,10 +926,110 @@ feature {NONE} -- Parsing
 				end
 			end
 		ensure
-			valid_character: has_error or (last_token = character_token_code implies (last_string.count >= 1))
+			valid_character: has_error or (last_token = character_token_code implies (last_string.count = 1))
 			valid_double: has_error or (last_token = double_token_code implies last_string.is_double)
 			valid_identifier: has_error or (last_token = identifier_token_code implies is_valid_identifier (last_string))
 			valid_integer: has_error or (last_token = integer_token_code implies last_string.is_integer)
+		end
+
+
+	parse_character is
+			-- Parse next token and try to interpret it as character. Make it available via the first item of `last_string'.
+			-- Set `has_error' to `True' if an error occurs.
+		require
+			no_error: not has_error
+			input: input /= Void
+			not_end_of_input: not end_of_input
+			item_is_tick: item = '%''
+		local
+			code: INTEGER
+		do
+			last_string.wipe_out
+			forth
+			if end_of_input then
+				report_and_set_error_at_position ("Expected character constant, not end of input.", position)
+			elseif item /= '%%' then
+				last_string.append_character (item)
+			else
+				forth
+				if end_of_input then
+					report_and_set_error_at_position ("Expected escaped character constant, not end of input.", position)
+				else
+					inspect item
+					when 'A' then
+						last_string.append_character ('%A')
+					when 'B' then
+						last_string.append_character ('%B')
+					when 'C' then
+						last_string.append_character ('%C')
+					when 'D' then
+						last_string.append_character ('%D')
+					when 'F' then
+						last_string.append_character ('%F')
+					when 'H' then
+						last_string.append_character ('%H')
+					when 'L' then
+						last_string.append_character ('%L')
+					when 'N' then
+						last_string.append_character ('%N')
+					when 'Q' then
+						last_string.append_character ('%Q')
+					when 'R' then
+						last_string.append_character ('%R')
+					when 'S' then
+						last_string.append_character ('%S')
+					when 'T' then
+						last_string.append_character ('%T')
+					when 'U' then
+						last_string.append_character ('%U')
+					when 'V' then
+						last_string.append_character ('%V')
+					when '%%' then
+						last_string.append_character ('%%')
+					when '%'' then
+						last_string.append_character ('%'')
+					when '%"' then
+						last_string.append_character ('%"')
+					when '%(' then
+						last_string.append_character ('%(')
+					when '%)' then
+						last_string.append_character ('%)')
+					when '%<' then
+						last_string.append_character ('%<')
+					when '%>' then
+						last_string.append_character ('%>')
+					when '/' then
+						from
+							forth
+						until
+							end_of_input or else not is_number (item)
+						loop
+							last_string.append_character (item)
+							forth
+						end
+						if end_of_input then
+							report_and_set_error_at_position ("Expected '/' , but got end of input.", position)
+						elseif item /= '/' then
+							report_and_set_error_at_position ("Expected '/' , but got '" + item.out + "'.", position)
+						else
+							code := last_string.to_integer
+							last_string.wipe_out
+								-- TODO: In order to also handle CHARACTER_32 we probably need to make `last_string' a STRING_32 and use `code.to_character_32'
+							last_string.append_character (code.to_character)
+						end
+					else
+						report_and_set_error_at_position ("Expected character constant, but got '" + item.out + "'.", position)
+					end
+				end
+			end
+			forth
+			if end_of_input then
+				report_and_set_error_at_position ("Expected character constant, not end of input.", position)
+			elseif item /= '%'' then
+				report_and_set_error_at_position ("Expected ''', not end of input.", position)
+			else
+				forth
+			end
 		end
 
 	last_token: INTEGER

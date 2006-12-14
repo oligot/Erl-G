@@ -227,6 +227,18 @@ feature -- Tests for parsing constants
 			assert_equal ("correct value", '%/161/', a_const.value)
 		end
 
+	test_parse_character_constant_6 is
+		local
+			a_const: ITP_CONSTANT
+		do
+			set_input ("'%%/161/'")
+			parse_expression
+			assert_equal ("no error occurred", False, has_error)
+			a_const ?= last_expression
+			assert ("correct type", a_const /= Void)
+			assert_equal ("correct value", '%/161/', a_const.value)
+		end
+
 	test_parse_void_constant is
 		local
 			a_const: ITP_CONSTANT
