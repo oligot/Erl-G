@@ -1,7 +1,11 @@
 class BAR
 
-feature
+inherit
+	FOO
+		rename
+			r_foo as r_bar
+		end
 
-	d: DOUBLE
+feature
 
 end

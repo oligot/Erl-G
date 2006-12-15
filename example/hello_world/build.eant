@@ -32,7 +32,7 @@
       Generate reflection meta-classes.
     </description>
     <set name="eiffel" value="ise"/>
-    <set name="type_list" value="CONT[ANY]"/>
+    <set name="type_list" value=""/>
     <geant target="erl_g"/>
   </target>
 
@@ -46,8 +46,7 @@
   <target name="erl_g" depend="init">
     <description>
       Invoke the 'erl_g' tool on the current system. Make classes in
-      ${type_list} reflectable. If ${common_types} is defined, make
-      common types reflectable in addition.
+      ${type_list} creatable.
     </description>
 
     <set name="define" value="GOBO_EIFFEL=${eiffel}"/>
@@ -55,12 +54,7 @@
     <set name="define" value="${define} GOBO_CC=${GOBO_CC}" if="${GOBO_CC}"/>
     <set name="define" value="${define} GOBO_XML_EXPAT=true" if="${GOBO_XML_EXPAT}"/>
     <set name="define" value="${define} GOBO_DOTNET=true" if="${GOBO_DOTNET}"/>
-    <set name="define" value="${define} SE_1_0=true" if="${SE_1_0}"/>
-    <set name="define" value="${define} VE_4_1=true" if="${VE_4_1}"/>
-    <set name="options" value=""/>
-    <set name="options" value="${options}--void" if="${eiffel}=ve"/>
-    <set name="options" value="${options} --default-types" if="${default_types}=true"/>
-    <exec executable="erl_g ${options} --define=&quot;${define}&quot; ${system_dir}/system.xace ${type_list}"/>
+    <exec executable="erl_g --define=&quot;${define}&quot; ${system_dir}/system.xace ${type_list}"/>
   </target>
 
 </project>
