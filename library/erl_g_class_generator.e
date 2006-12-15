@@ -421,11 +421,7 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 			printer: ERL_G_LOOKUP_PRINTER
 			list: DS_ARRAYED_LIST [DS_PAIR [STRING, STRING]]
 			pair: DS_PAIR [STRING, STRING]
-			expression: STRING
 			type_name: STRING
-			stream: KL_STRING_OUTPUT_STREAM
-			old_stream: KI_CHARACTER_OUTPUT_STREAM
-			constant: ET_CONSTANT_ATTRIBUTE
 		do
 			if is_basic_class (class_, reflection_generator.universe) then
 				create list.make (0)
@@ -435,6 +431,7 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 				else
 					type_name := generic_derivation (class_, reflection_generator.universe).to_text
 				end
+				-- Immediate features
 				count := true_feature_count (class_)
 				from
 					create list.make (count)
@@ -450,33 +447,7 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 							feature_.implementation_class = class_ and
 							feature_.first_precursor = Void
 					then
-						if feature_.is_attribute then
-							create expression.make (9 + class_.name.name.count + feature_.name.name.count)
-							expression.append_string ("agent attribute_value (%"")
-							expression.append_string (feature_.name.name)
-							expression.append_string ("%", ?)")
-						elseif feature_.is_unique_attribute then
-							-- TODO: currently we lie about the value of unique attributes
-							expression := "agent identity (0, ?)"
-						elseif feature_.is_constant_attribute then
-							old_stream := ast_printer.file
-							create stream.make_empty
-							ast_printer.set_file (stream)
-							constant ?= feature_
-							constant.constant.process (ast_printer)
-							ast_printer.set_file (old_stream)
-							create expression.make (19 + stream.string.count)
-							expression.append_string ("agent identity (")
-							expression.append_string (stream.string)
-							expression.append_string (", ?)")
-						else
-							create expression.make (9 + class_.name.name.count + feature_.name.name.count)
-							expression.append_string ("agent {")
-							expression.append_string (type_name)
-							expression.append_string ("}.")
-							expression.append_string (feature_.name.name)
-						end
-						create pair.make (expression, feature_.name.name)
+						pair := agent_entry (feature_, type_name)
 						list.put_last (pair)
 					end
 					i := i + 1
@@ -491,17 +462,12 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 		local
 			count: INTEGER
 			i: INTEGER
-			j: INTEGER
 			printer: ERL_G_LOOKUP_PRINTER
 			list: DS_ARRAYED_LIST [DS_PAIR [STRING, STRING]]
 			pair: DS_PAIR [STRING, STRING]
-			expression: STRING
 			type_name: STRING
 			query: ET_QUERY
 			feature_: ET_FEATURE
-			stream: KL_STRING_OUTPUT_STREAM
-			old_stream: KI_CHARACTER_OUTPUT_STREAM
-			constant: ET_CONSTANT_ATTRIBUTE
 		do
 			if is_basic_class (class_, reflection_generator.universe) then
 				create list.make (0)
@@ -515,7 +481,6 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 				from
 					create list.make (count)
 					i := 1
-					j := 1
 				until
 					i > count
 				loop
@@ -529,33 +494,7 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 								feature_.implementation_class = class_ and
 								feature_.first_precursor = Void
 						then
-							if feature_.is_attribute then
-								create expression.make (9 + class_.name.name.count + feature_.name.name.count)
-								expression.append_string ("agent attribute_value (%"")
-								expression.append_string (feature_.name.name)
-								expression.append_string ("%", ?)")
-							elseif feature_.is_unique_attribute then
-								-- TODO: currently we lie about the value of unique attributes
-								expression := "agent identity (0, ?)"
-							elseif feature_.is_constant_attribute then
-								old_stream := ast_printer.file
-								create stream.make_empty
-								ast_printer.set_file (stream)
-								constant ?= feature_
-								constant.constant.process (ast_printer)
-								ast_printer.set_file (old_stream)
-								create expression.make (19 + stream.string.count)
-								expression.append_string ("agent identity (")
-								expression.append_string (stream.string)
-								expression.append_string (", ?)")
-							else
-								create expression.make (9 + class_.name.name.count + feature_.name.name.count)
-								expression.append_string ("agent {")
-								expression.append_string (type_name)
-								expression.append_string ("}.")
-								expression.append_string (feature_.name.name)
-							end
-							create pair.make (expression, feature_.name.name)
+							pair := agent_entry (feature_, type_name)
 							list.put_last (pair)
 						end
 					end
@@ -565,6 +504,50 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 			create printer.make (output_stream)
 			printer.print_item_by_name_query ("immediate_query", "FUNCTION [ANY, TUPLE, ANY]", list)
 		end
+
+	agent_entry (a_feature: ET_FEATURE; a_type_name: STRING): DS_PAIR [STRING, STRING] is
+			-- Agent entry pair for feature `a_feature' apprearing in type named `a_type_name' suitable for lookup printer
+		require
+			a_feature_not_void: a_feature /= Void
+			a_type_name_not_void: a_type_name /= Void
+		local
+			expression: STRING
+			stream: KL_STRING_OUTPUT_STREAM
+			old_stream: KI_CHARACTER_OUTPUT_STREAM
+			constant: ET_CONSTANT_ATTRIBUTE
+		do
+			if a_feature.is_attribute then
+				create expression.make (9 + class_.name.name.count + a_feature.name.name.count)
+				expression.append_string ("agent attribute_value (%"")
+				expression.append_string (a_feature.name.name)
+				expression.append_string ("%", ?)")
+			elseif a_feature.is_unique_attribute then
+				-- TODO: currently we lie about the value of unique attributes
+				expression := "agent identity (0, ?)"
+			elseif a_feature.is_constant_attribute then
+				old_stream := ast_printer.file
+				create stream.make_empty
+				ast_printer.set_file (stream)
+				constant ?= a_feature
+				constant.constant.process (ast_printer)
+				ast_printer.set_file (old_stream)
+				create expression.make (19 + stream.string.count)
+				expression.append_string ("agent identity (")
+				expression.append_string (stream.string)
+				expression.append_string (", ?)")
+			else
+				create expression.make (9 + class_.name.name.count + a_feature.name.name.count)
+				expression.append_string ("agent {")
+				expression.append_string (a_type_name)
+				expression.append_string ("}.")
+				expression.append_string (a_feature.name.name)
+			end
+			create Result.make (expression, a_feature.name.name)
+		ensure
+			agent_entry_not_void: Result /= Void
+		end
+
+
 
 	generate_formal_argument_list (a_list: ET_FORMAL_ARGUMENT_LIST) is
 			-- Generate code that creates a list filled with the formal arguments from `a_list'
