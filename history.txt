@@ -1,10 +1,10 @@
-Version 1.2.0 - 15.12.2006
+Version 1.2.0 - ??.??.????
  	 * Better command line argument handling (due to Bernd's new library)
 	 * Generates much less code
 	 * Much quicker generation and compilation
 	 * All (usually infenitely many) types can be reflectable
 	 * Creatable types must be limited to finite set
-	 * Support for ISE Eiffel 5.7
+	 * Support for ISE Eiffel 5.7 (not .ecf though)
 
 Version 1.1.0 - 08.03.2006
 	 * Bug fixes

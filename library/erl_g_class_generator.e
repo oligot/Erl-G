@@ -417,11 +417,15 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 		local
 			count: INTEGER
 			i: INTEGER
+			j: INTEGER
 			feature_: ET_FEATURE
 			printer: ERL_G_LOOKUP_PRINTER
 			list: DS_ARRAYED_LIST [DS_PAIR [STRING, STRING]]
 			pair: DS_PAIR [STRING, STRING]
 			type_name: STRING
+			parent: ET_PARENT
+			rename_: ET_RENAME
+			expression: STRING
 		do
 			if is_basic_class (class_, reflection_generator.universe) then
 				create list.make (0)
@@ -431,7 +435,7 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 				else
 					type_name := generic_derivation (class_, reflection_generator.universe).to_text
 				end
-				-- Immediate features
+					-- Immediate features
 				count := true_feature_count (class_)
 				from
 					create list.make (count)
@@ -453,6 +457,39 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 					i := i + 1
 				end
 			end
+				-- Renamed features
+			if class_.parents /= Void then
+				from
+					i := 1
+				variant
+					class_.parents.count - i + 1
+				until
+					i > class_.parents.count
+				loop
+					parent := class_.parents.item (i).parent
+					if parent.renames /= Void then
+						from
+							j := 1
+						variant
+							parent.renames.count - j + 1
+						until
+							j > parent.renames.count
+						loop
+							rename_ := parent.renames.item (j).rename_pair
+							create expression.make (64)
+							expression.append_string ("universe.class_by_name (%"")
+							expression.append_string (parent.type.base_class (class_, reflection_generator.universe).name.name)
+							expression.append_string ("%").feature_ (%"")
+							expression.append_string (escaped_string (rename_.old_name.name))
+							expression.append_string ("%")")
+							create pair.make (expression, escaped_string (rename_.new_name.feature_name.name))
+							list.force_last (pair)
+							j := j + 1
+						end
+					end
+					i := i + 1
+				end
+			end
 			create printer.make (output_stream)
 			printer.print_item_by_name_query ("immediate_feature", "ROUTINE [ANY, TUPLE]", list)
 		end
@@ -462,12 +499,16 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 		local
 			count: INTEGER
 			i: INTEGER
+			j: INTEGER
 			printer: ERL_G_LOOKUP_PRINTER
 			list: DS_ARRAYED_LIST [DS_PAIR [STRING, STRING]]
 			pair: DS_PAIR [STRING, STRING]
 			type_name: STRING
 			query: ET_QUERY
 			feature_: ET_FEATURE
+			parent: ET_PARENT
+			rename_: ET_RENAME
+			expression: STRING
 		do
 			if is_basic_class (class_, reflection_generator.universe) then
 				create list.make (0)
@@ -496,6 +537,39 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 						then
 							pair := agent_entry (feature_, type_name)
 							list.put_last (pair)
+						end
+					end
+					i := i + 1
+				end
+			end
+				-- Renamed features
+			if class_.parents /= Void then
+				from
+					i := 1
+				variant
+					class_.parents.count - i + 1
+				until
+					i > class_.parents.count
+				loop
+					parent := class_.parents.item (i).parent
+					if parent.renames /= Void then
+						from
+							j := 1
+						variant
+							parent.renames.count - j + 1
+						until
+							j > parent.renames.count
+						loop
+							rename_ := parent.renames.item (j).rename_pair
+							create expression.make (64)
+							expression.append_string ("universe.class_by_name (%"")
+							expression.append_string (parent.type.base_class (class_, reflection_generator.universe).name.name)
+							expression.append_string ("%").query (%"")
+							expression.append_string (escaped_string (rename_.old_name.name))
+							expression.append_string ("%")")
+							create pair.make (expression, escaped_string (rename_.new_name.feature_name.name))
+							list.force_last (pair)
+							j := j + 1
 						end
 					end
 					i := i + 1
@@ -583,7 +657,42 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 			end
 		end
 
-feature {NONE}
+feature {NONE} -- Implementation
+
+	escaped_string (a_string: STRING): STRING is
+			-- Clone of `a_string' except that all occurences of double quotes are
+			-- escaped with the '%' character.
+		require
+			a_string_not_void: a_string /= Void
+		local
+			i: INTEGER
+			c: CHARACTER
+		do
+			if a_string.has ('"') then
+				from
+					i := 1
+					create Result.make (a_string.count + a_string.occurrences ('"'))
+				variant
+					a_string.count - i + 1
+				until
+					i > a_string.count
+				loop
+					c := a_string.item (i)
+					if c = '"' then
+						Result.append_character ('%%')
+					end
+					Result.append_character (c)
+					i := i + 1
+				end
+			else
+				Result := a_string
+			end
+		ensure
+			escaped_string_not_void: Result /= Void
+			escaped_string_bigger_equal: Result.count = a_string.count + a_string.occurrences ('"')
+			no_quotes_same_string: not a_string.has ('"') = (Result = a_string)
+		end
+
 
 	output_stream: KI_TEXT_OUTPUT_STREAM
 			-- Output stream for code generation
