@@ -63,7 +63,7 @@ revision: "$Revision$"
 		<title>Requirements</title>
 
 		<itemizedlist>
-			<listitem><para><link linkend="http://www.eiffel.com/index">ISE Eiffel 5.6</link> or greater</para></listitem>
+			<listitem><para><link linkend="http://www.eiffel.com/index">ISE Eiffel 5.7</link> or greater</para></listitem>
 			<listitem><para><link linkend="http://www.gobosoft.com/index">Gobo</link> - use the development version available via <link linkend="http://sourceforge.net/projects/gobo-eiffel/index">CVS from SourceForge</link></para></listitem>
 			<listitem><para>Any platform supported by the above</para></listitem>
 		</itemizedlist>
