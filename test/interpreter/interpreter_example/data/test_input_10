@@ -1,0 +1,3 @@
+create {LINKED_LIST [ANY]} ll.make
+ll.is_valid_index
+:quit

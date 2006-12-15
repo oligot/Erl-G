@@ -77,6 +77,12 @@ feature -- Test
 			assert_interpreter ("test run 9", input_9_filename, output_9_filename)
 		end
 
+	test_10 is
+			-- Run 'interpreter_example'.
+		do
+			assert_interpreter ("test run 10", input_10_filename, output_10_filename)
+		end
+
 feature -- Access
 
 	program_name: STRING is "interpreter_example"
@@ -276,6 +282,24 @@ feature {NONE} -- Filenames
 			-- Name of ninth test expected output file
 		once
 			Result := file_system.pathname (data_dirname, "test_output_9")
+		ensure
+			testoutput9_filename_not_void: Result /= Void
+			testoutput9_filename_not_empty: Result.count > 0
+		end
+
+	input_10_filename: STRING is
+			-- Name of ninth test input file
+		once
+			Result := file_system.pathname (data_dirname, "test_input_10")
+		ensure
+			testinput9_filename_not_void: Result /= Void
+			testinput9_filename_not_empty: Result.count > 0
+		end
+
+	output_10_filename: STRING is
+			-- Name of ninth test expected output file
+		once
+			Result := file_system.pathname (data_dirname, "test_output_10")
 		ensure
 			testoutput9_filename_not_void: Result /= Void
 			testoutput9_filename_not_empty: Result.count > 0
