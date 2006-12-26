@@ -1,0 +1,2 @@
+create {HASH_TABLE [ANY, HASHABLE]} v.make (1)
+:quit
