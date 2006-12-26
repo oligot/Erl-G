@@ -240,7 +240,7 @@ feature {NONE} -- Generation of features belonging to the "Access" feature claus
 					output_stream.put_string ("a_actuals.is_equal (%"")
 					actuals := cs.item.actual_parameters
 					if actuals /= Void then
-						actuals.process (ast_printer)
+						generate_actual_parameter_list (actuals)
 					end
 					output_stream.put_line ("%")")
 					cs.forth
@@ -304,7 +304,7 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 					output_stream.put_string ("%T%T%Tif a_actuals.is_equal (%"")
 					actuals := cs.item.actual_parameters
 					if actuals /= Void then
-						actuals.process (ast_printer)
+						generate_actual_parameter_list (actuals)
 					end
 					output_stream.put_line ("%") then")
 					generate_creation_function_result (cs.item)
@@ -655,6 +655,30 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 					i := i + 1
 				end
 			end
+		end
+
+	generate_actual_parameter_list (an_actuals: ET_ACTUAL_PARAMETER_LIST) is
+			-- Generate sequence of actuals from `an_actuals'.
+		require
+			an_actuals_not_void: an_actuals /= Void
+		local
+			i: INTEGER
+			count: INTEGER
+		do
+			output_stream.put_character ('[')
+			from
+				i := 1
+				count := an_actuals.count
+			until
+				i > count
+			loop
+				an_actuals.item (i).process (ast_printer)
+				i := i + 1
+				if i <= count then
+					output_stream.put_string (", ")
+				end
+			end
+			output_stream.put_character (']')
 		end
 
 feature {NONE} -- Implementation
