@@ -605,11 +605,16 @@ feature {NONE} -- Parsing
 											create {ITP_CONSTANT} last_expression.make (last_string.to_boolean)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("CHARACTER_8") or a_type_name.is_case_insensitive_equal ("CHARACTER") then
-											-- TODO: We need to support CHARACTER_32 too.
 										if last_token /= character_token_code then
 											report_and_set_error_at_position ("Expected character constant but got '" + last_string + "'.", position)
 										else
 											create {ITP_CONSTANT} last_expression.make (last_string.item (1))
+										end
+									elseif a_type_name.is_case_insensitive_equal ("CHARACTER_32") then
+										if last_token /= character_token_code then
+											report_and_set_error_at_position ("Expected character constant but got '" + last_string + "'.", position)
+										else
+											create {ITP_CONSTANT} last_expression.make (last_string.item (1).to_character_32)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("REAL_32") or a_type_name.is_case_insensitive_equal ("REAL") then
 										if last_token /= double_token_code and last_token /= integer_token_code then

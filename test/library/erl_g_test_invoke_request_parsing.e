@@ -132,4 +132,23 @@ feature -- Tests for invoke requests
 			assert_equal ("correct argument 2", 4, a_const.value)
 		end
 
+	test_invoke_request_10 is
+		local
+			a_const: ITP_CONSTANT
+		do
+			set_input ("a3.character_justify ({CHARACTER_32}'%%/61/', 4)")
+			parse
+			assert_equal ("no error occurred", False, has_error)
+			assert_equal ("invoke request triggered", invoke_request_code, last_request)
+			assert_equal ("correct target variable name", "a3", last_target_variable_name)
+			assert_equal ("correct feature name", "character_justify", last_feature_name)
+			assert_equal ("two arguments", 2, last_argument_list.count)
+			a_const ?= last_argument_list.item (1)
+			assert_not_equal ("argument 1 not void", Void, a_const)
+			assert_equal ("correct argument 1", ('%/61/').to_character_32, a_const.value)
+			a_const ?= last_argument_list.item (2)
+			assert_not_equal ("argument 2 not void", Void, a_const)
+			assert_equal ("correct argument 2", 4, a_const.value)
+		end
+
 end
