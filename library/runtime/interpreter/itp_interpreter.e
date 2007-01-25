@@ -352,11 +352,6 @@ feature {NONE} -- Implementation
 			log_message (l_exception_trace)
 			log_message ("]]>%N</exception_trace>%N")
 			log_message ("</call_result>%N")
-			if l_exception = Class_invariant then
-				-- A class invariant cannot be recovered from since we
-				-- don't know how many and what objects are now invalid
-				should_quit := True
-			end
 			retry
 		end
 
