@@ -1,4 +1,4 @@
-Version 1.2.0 - ??.??.????
+Version 1.2.0 - 26.01.2007
  	 * Better command line argument handling (due to Bernd's new library)
 	 * Generates much less code
 	 * Much quicker generation and compilation
