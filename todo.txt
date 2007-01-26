@@ -2,8 +2,5 @@
  * Agent expressions for interpreter
  * Separate scanner and parser for interpreter
  * Complete documentation
- * More test cases
  * Better log files
  * String constants for the interpreter
- * Fix failing test cases
- * Better liveness algorithm
