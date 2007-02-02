@@ -1020,7 +1020,7 @@ feature {NONE} -- Parsing
 							code := last_string.to_integer
 							last_string.wipe_out
 								-- TODO: In order to also handle CHARACTER_32 we probably need to make `last_string' a STRING_32 and use `code.to_character_32'
-							last_string.append_character (code.to_character)
+							last_string.append_character (code.to_character_8)
 						end
 					else
 						report_and_set_error_at_position ("Expected character constant, but got '" + item.out + "'.", position)
