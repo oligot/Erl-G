@@ -1,0 +1,3 @@
+create {STRING_8} v1.make(10)
+v2 := v1.Minimal_increase
+:quit
