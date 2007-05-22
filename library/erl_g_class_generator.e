@@ -447,7 +447,6 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 					if
 						feature_.clients.has_class (reflection_generator.universe.any_class) and
 							not feature_.name.is_infix and not feature_.name.is_prefix and
-							not is_external_feature (feature_) and
 							feature_.implementation_class = class_ and
 							feature_.first_precursor = Void
 					then
@@ -531,7 +530,6 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 						if
 							feature_.clients.has_class (reflection_generator.universe.any_class) and
 								not feature_.name.is_infix and not feature_.name.is_prefix and
-								not is_external_feature (feature_) and
 								feature_.implementation_class = class_ and
 								feature_.first_precursor = Void
 						then

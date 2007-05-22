@@ -130,10 +130,10 @@ feature {NONE} -- Implementation
 			pair: DS_PAIR [STRING, STRING]
 			name: STRING
 		do
+			create list.make (reflection_generator.universe.classes.count + reflection_generator.universe.basic_classes.count)
 			from
 				cs := reflection_generator.universe.classes.new_cursor
 				cs.start
-				create list.make (reflection_generator.universe.classes.count)
 			until
 				cs.off
 			loop
@@ -143,12 +143,29 @@ feature {NONE} -- Implementation
 				then
 					name := ("class_").twin
 					name.append_string (reflection_generator.universe.eiffel_class (cs.item.name).name.name.as_lower)
-						-- Note: using key from hashtable instead of item name to get alias name (if current entry represents an alias)
 					create pair.make (name, cs.key.name)
 					list.put_last (pair)
 				end
 				cs.forth
 			end
+			from
+				cs := reflection_generator.universe.basic_classes.new_cursor
+				cs.start
+			until
+				cs.off
+			loop
+				if
+					cs.item.implementation_checked and then
+					not cs.item.has_implementation_error
+				then
+					name := ("class_").twin
+					name.append_string (reflection_generator.universe.eiffel_class (cs.item.name).name.name.as_lower)
+					create pair.make (name, cs.key.name)
+					list.put_last (pair)
+				end
+				cs.forth
+			end
+
 			create printer.make (output_stream)
 			printer.print_item_by_name_query ("class_by_name", "ERL_CLASS", list)
 		end
