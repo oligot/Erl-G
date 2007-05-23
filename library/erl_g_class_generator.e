@@ -293,6 +293,9 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 			actuals: ET_ACTUAL_PARAMETER_LIST
 		do
 			output_stream.put_line ("%Tcreation_function (a_actuals: STRING; a_name: STRING): FUNCTION [ANY, TUPLE, ANY] is")
+			output_stream.put_line ("%T%Tlocal")
+			output_stream.put_line ("i: INTEGER")
+			output_stream.put_line ("c: CHARACTER")
 			output_stream.put_line ("%T%Tdo")
 			if not is_basic_class (class_, reflection_generator.universe) then
 				from
@@ -339,7 +342,7 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 					name := ("agent : ANY do create {").twin
 					name.append_string (a_type.to_text)
 					name.append_string ("} Result end")
-					create pair.make (name, Void)
+					create pair.make (name, "")
 					list.force_last (pair)
 				end
 				if class_.creators /= Void then

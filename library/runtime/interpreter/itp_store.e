@@ -158,10 +158,6 @@ feature -- Basic routines
 			an_expression_defined: is_expression_defined (an_expression)
 			a_name_not_void: a_name /= Void
 			a_name_not_empty: not a_name.is_empty
-		local
-			variable: ITP_VARIABLE
-			constant: ITP_CONSTANT
-			value: ANY
 		do
 			assign_value (expression_value (an_expression), a_name)
 		ensure
