@@ -35,7 +35,7 @@ feature {NONE} -- Initialization
 			a_reflection_generator_not_void: a_reflection_generator /= Void
 		do
 			reflection_generator := a_reflection_generator
-			output_stream := null_output_stream
+			create output_stream.make (null_output_stream)
 		ensure
 			reflection_generator_set: reflection_generator = a_reflection_generator
 		end
@@ -54,7 +54,7 @@ feature -- Generation
 			a_file_not_void: a_file /= Void
 			a_file_open_write: a_file.is_open_write
 		do
-			output_stream := a_file
+			output_stream.set_output_stream (a_file)
 			generate_indexing
 			generate_class_clause
 			generate_inheritance_clause
@@ -71,7 +71,9 @@ feature {NONE} -- Implementation
 			-- Generate indexing clause for reflection class.
 		do
 			output_stream.put_line ("indexing")
-			output_stream.put_line ("%Twarning: %"Generated class. Do not edit.%"")
+			output_stream.indent
+			output_stream.put_line ("warning: %"Generated class. Do not edit.%"")
+			output_stream.dedent
 			output_stream.put_new_line
 		end
 
@@ -88,7 +90,9 @@ feature {NONE} -- Implementation
 		do
 			output_stream.put_line ("inherit")
 			output_stream.put_new_line
-			output_stream.put_line ("%TERL_UNIVERSE")
+			output_stream.indent
+			output_stream.put_line ("ERL_UNIVERSE")
+			output_stream.dedent
 			output_stream.put_new_line
 		end
 
@@ -98,7 +102,9 @@ feature {NONE} -- Implementation
 			output_stream.put_string ("create")
 			output_stream.put_new_line
 			output_stream.put_new_line
-			output_stream.put_string ("%Tmake")
+			output_stream.indent
+			output_stream.put_string ("make")
+			output_stream.dedent
 			output_stream.put_new_line
 			output_stream.put_new_line
 		end
@@ -108,8 +114,11 @@ feature {NONE} -- Implementation
 		do
 			output_stream.put_line ("feature -- Access")
 			output_stream.put_new_line
+
+			output_stream.indent
 			generate_class_by_name_feature
 			output_stream.put_new_line
+			output_stream.dedent
 		end
 
 	generate_implementation_features is
@@ -117,7 +126,10 @@ feature {NONE} -- Implementation
 		do
 			output_stream.put_line ("feature {NONE} -- Implementation")
 			output_stream.put_new_line
+
+			output_stream.indent
 			generate_class_i_features
+			output_stream.dedent
 		end
 
 	generate_class_by_name_feature is
@@ -186,17 +198,22 @@ feature {NONE} -- Implementation
 					not cs.item.has_implementation_error and
 					not is_alias_class (cs.key, reflection_generator.universe)
 				then
-					output_stream.put_character ('%T')
 					output_stream.put_string ("class_")
 					output_stream.put_string (cs.item.name.name.as_lower)
 					output_stream.put_line (": ERL_CLASS is")
-					output_stream.put_line ("%T%Tonce")
-					output_stream.put_string ("%T%T%Tcreate {")
+					output_stream.indent
+					output_stream.put_line ("once")
+					output_stream.indent
+					output_stream.put_string ("create {")
 					output_stream.put_string (reflection_generator.meta_class_name (cs.item))
 					output_stream.put_line ("} Result.make")
-					output_stream.put_line ("%T%Tensure")
-					output_stream.put_line ("%T%T%Ttype_not_void: Result /= Void")
-					output_stream.put_line ("%T%Tend")
+					output_stream.dedent
+					output_stream.put_line ("ensure")
+					output_stream.indent
+					output_stream.put_line ("type_not_void: Result /= Void")
+					output_stream.dedent
+					output_stream.dedent
+					output_stream.put_line ("end")
 					output_stream.put_new_line
 				end
 				cs.forth
@@ -205,7 +222,7 @@ feature {NONE} -- Implementation
 
 feature {NONE} -- Implementation
 
-	output_stream: KI_TEXT_OUTPUT_STREAM
+	output_stream: ERL_G_INDENTING_TEXT_OUTPUT_FILTER
 			-- Output stream for code generation
 
 	reflection_generator: ERL_G_GENERATOR

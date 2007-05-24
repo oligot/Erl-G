@@ -1,8 +1,13 @@
 indexing
-	description	: "Outputstream filter that allows for dynamic indentation"
-	author		: "Andreas Leitner"
-	date		: "$Date$"
-	revision	: "1.0.0"
+	description:
+
+		"Outputstream filter that transparently indents lines"
+
+	copyright: "Copyright (c) 2007, Andreas Leitner and others"
+	license: "Eiffel Forum License v2 (see forum.txt)"
+	date: "$Date$"
+	revision: "$Revision$"
+
 
 class ERL_G_INDENTING_TEXT_OUTPUT_FILTER
 
@@ -36,6 +41,7 @@ feature {NONE} -- Initialization
 			output_stream := a_output_stream
 		ensure
 			output_stream_set: output_stream = a_output_stream
+			indent_level_initialized: indentation = 0
 		end
 
 feature -- Status report
@@ -51,7 +57,8 @@ feature -- Access
 	output_stream: KI_TEXT_OUTPUT_STREAM
 			-- Output output stream
 
-	indent_level: INTEGER
+	indentation: INTEGER
+			-- Level by which lines should be currently indented
 
 	eol: STRING is
 			-- Line separator
@@ -67,22 +74,22 @@ feature -- Access
 
 feature -- Level Change
 
-	increase_indent_level is
-			-- Increase level of indentation by 1.
+	indent is
+			-- Increase level of indentation.
 		do
-			indent_level := indent_level + 1
+			indentation := indentation + 1
 		ensure
-			indent_level_increased: indent_level = old indent_level + 1
+			indent_level_increased: indentation = old indentation + 1
 		end
 
-	decrease_indent_level is
-			-- Decrease level of indentation by 1.
+	dedent is
+			-- Decrease level of indentation.
 		require
-			indent_level_big_enough: indent_level > 0
+			indent_level_big_enough: indentation > 0
 		do
-			indent_level := indent_level - 1
+			indentation := indentation - 1
 		ensure
-			indent_level_decreased: indent_level = old indent_level - 1
+			indent_level_decreased: indentation = old indentation - 1
 		end
 
 feature -- Output
@@ -160,7 +167,7 @@ feature {NONE} -- Implementation
 			from
 				i := 1
 			until
-				i > indent_level
+				i > indentation
 			loop
 				output_stream.put_character ('%T')
 				i := i + 1
@@ -175,7 +182,7 @@ feature {NONE} -- Implementation
 
 invariant
 
-	indent_level_not_negative: indent_level >= 0
+	indent_level_not_negative: indentation >= 0
 	output_stream_not_void: output_stream /= Void
 
 end
