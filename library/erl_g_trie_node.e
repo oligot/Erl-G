@@ -61,21 +61,20 @@ feature -- Access
 		-- Key of this node
 
 	node_prefix: STRING
-		-- Prefix of this node
-		local
-			node: like Current
+			-- Prefix of this node
 		do
 			create Result.make (level)
 			append_prefix_to_string (Result)
 		end
 
 	has_item: BOOLEAN
-		-- Does current node have an item?
+			-- Does current node have an item?
 
 	value: G
 			-- Value of current item (if any)
 
 	children: DS_ARRAYED_LIST [like Current]
+			-- Child nodes
 
 feature -- Element change
 
