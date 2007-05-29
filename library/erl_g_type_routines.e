@@ -43,6 +43,18 @@ feature
 			end
 		end
 
+	seeded_feature (a_class: ET_CLASS; a_seed: INTEGER): ET_FEATURE is
+			-- Feature from class `a_class' with seed `a_seed'; Void if no such feature
+		require
+			a_class_not_void: a_class /= Void
+			a_seed_not_void: a_seed /= Void
+		do
+			Result := a_class.seeded_query (a_seed)
+			if Result = Void then
+				Result := a_class.seeded_procedure (a_seed)
+			end
+		end
+
 	is_external_feature (a_feature: ET_FEATURE): BOOLEAN is
 		require
 			a_feature_not_void: a_feature /= Void
