@@ -934,9 +934,8 @@ feature {NONE} -- Parsing
 			valid_character: has_error or (last_token = character_token_code implies (last_string.count = 1))
 			valid_double: has_error or (last_token = double_token_code implies last_string.is_double)
 			valid_identifier: has_error or (last_token = identifier_token_code implies is_valid_identifier (last_string))
-			valid_integer: has_error or (last_token = integer_token_code implies last_string.is_integer)
+			valid_integer: has_error or (last_token = integer_token_code implies last_string.is_integer_64 or last_string.is_natural_64)
 		end
-
 
 	parse_character is
 			-- Parse next token and try to interpret it as character. Make it available via the first item of `last_string'.
