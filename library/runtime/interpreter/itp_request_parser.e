@@ -553,13 +553,13 @@ feature {NONE} -- Parsing
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_integer_8)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_8)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("INTEGER_16") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_integer_16)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_16)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("INTEGER_32") or a_type_name.is_case_insensitive_equal ("INTEGER") then
 										if last_token /= integer_token_code then
@@ -577,26 +577,25 @@ feature {NONE} -- Parsing
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_natural_8)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_natural_8)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("NATURAL_16") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_natural_16)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_natural_16)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("NATURAL_32") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_natural_32)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_natural_32)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("NATURAL_64") then
 										if last_token /= integer_token_code then
 											report_and_set_error_at_position ("Expected integer constant but got '" + last_string + "'.", position)
 										else
-											-- TODO: We actually need `last_string.to_natural_64' here to prevent overflows!
-											create {ITP_CONSTANT} last_expression.make (last_string.to_integer_64.as_natural_64)
+											create {ITP_CONSTANT} last_expression.make (last_string.to_natural_64)
 										end
 									elseif a_type_name.is_case_insensitive_equal ("BOOLEAN") then
 										if last_token /= true_token_code and last_token /= false_token_code then
