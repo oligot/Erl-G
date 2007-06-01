@@ -10,7 +10,7 @@ indexing
 
 
 class
-	ERL_G_TRIE_NODE [G]
+	ERL_G_TRIE_NODE [G, H]
 
 create
 	make,
@@ -18,14 +18,14 @@ create
 
 feature {NONE} -- Initialization
 
-	make (a_parent: like Current; a_key: CHARACTER) is
+	make (a_parent: like Current; a_key: H) is
 			-- Create new empty node with parent `a_parent' and key `a_key'.
 		require
 			a_parent_not_void: a_parent /= Void
 		do
 			parent := a_parent
 			level := a_parent.level + 1
-			key := a_key
+			key_item := a_key
 			create children.make_default
 		end
 
@@ -41,91 +41,105 @@ feature {NONE} -- Initialization
 
 feature -- Status report
 
-	is_valid_item (an_item: STRING): BOOLEAN is
-			-- Is `an_item' a valid item to put in this node or its one of its children?
+	is_valid_key (a_key: DS_INDEXABLE [H]): BOOLEAN is
+			-- Is `a_key' a valid item to put in this node or its one of its children?
 		require
-			an_item_not_void: an_item /= Void
+			a_key_not_void: a_key /= Void
+		local
+			i: INTEGER
+			p: DS_INDEXABLE [H]
 		do
-			Result := (an_item.count >= level) and then ((level > 0) implies an_item.substring (1, level).is_equal (node_prefix))
-		end
-
-feature -- Access
-
-	parent: ERL_G_TRIE_NODE [G]
-		-- Parent node (Void if root node)
-
-	level: INTEGER
-			-- Nesting level of node in trie. (Root node has level 0.)
-
-	key: CHARACTER
-		-- Key of this node
-
-	node_prefix: STRING
-			-- Prefix of this node
-		do
-			create Result.make (level)
-			append_prefix_to_string (Result)
+			Result := a_key.count >= level
+			if Result and level > 0 then
+				from
+					i := 1
+					p := node_prefix
+				until
+					i > level or else (not (a_key.item (i).is_equal (p.item (i))))
+				loop
+					i := i + 1
+				end
+				Result := i > level
+			end
 		end
 
 	has_item: BOOLEAN
 			-- Does current node have an item?
 
-	value: G
+feature -- Access
+
+	item: G
 			-- Value of current item (if any)
 
 	children: DS_ARRAYED_LIST [like Current]
 			-- Child nodes
 
+	parent: ERL_G_TRIE_NODE [G, H]
+		-- Parent node (Void if root node)
+
+	level: INTEGER
+			-- Nesting level of node in trie. (Root node has level 0.)
+
+	key_item: H
+		-- Key part of this node
+
+	node_prefix: DS_INDEXABLE [H]
+			-- Prefix of this node
+		do
+			create {DS_ARRAYED_LIST [H]} Result.make (level)
+			append_prefix_to_indexable (Result)
+		end
+
 feature -- Element change
 
-	put (a_value: G; an_item: STRING) is
-			-- Put `an_item' (associated with `a_value') in trie.
+	put (a_item: G; a_key: DS_INDEXABLE [H]) is
+			-- Associate `a_item' with `a_key'.
 		require
-			an_item_not_void: an_item /= Void
-			an_item_valid: is_valid_item (an_item)
+			a_key_not_void: a_key /= Void
+			a_key_valid: is_valid_key (a_key)
 		local
-			cs: DS_LINEAR_CURSOR [ERL_G_TRIE_NODE [G]]
-			chr: CHARACTER
-			child: ERL_G_TRIE_NODE [G]
+			cs: DS_LINEAR_CURSOR [ERL_G_TRIE_NODE [G, H]]
+			k: H
+			child: ERL_G_TRIE_NODE [G, H]
 		do
-			if an_item.count = level then
+			if a_key.count = level then
 					-- Insert item right here.
 				has_item := True
-				value := a_value
+				item := a_item
 			else
 				from
 					cs := children.new_cursor
 					cs.start
-					chr := an_item.item (level + 1)
+					k := a_key.item (level + 1)
 				until
 					cs.off or child /= Void
 				loop
-					if cs.item.key = chr then
+					if cs.item.key_item = k then
 						child := cs.item
 					end
 					cs.forth
 				end
 				if child = Void then
-					create child.make (Current, chr)
+					create child.make (Current, k)
 					children.force_last (child)
 				end
-				child.put (a_value, an_item)
+				child.put (a_item, a_key)
 			end
 		end
 
 feature {ERL_G_TRIE_NODE} -- Implementation
 
-	append_prefix_to_string (a_string: STRING) is
-			-- Apprend prefix to `a_string'.
+	append_prefix_to_indexable (a_list: DS_INDEXABLE [H]) is
+			-- Apprend prefix to `a_list'.
 		require
-			a_string_not_void: a_string /= Void
+			a_list_not_void: a_list /= Void
 		do
 			if parent /= Void then
-				parent.append_prefix_to_string (a_string)
-				a_string.append_character (key)
+				parent.append_prefix_to_indexable (a_list)
+				a_list.force_last (key_item)
 			end
 		ensure
-			size_correct: a_string.count = old a_string.count + level
+			size_correct: a_list.count = old a_list.count + level
 		end
 
 invariant

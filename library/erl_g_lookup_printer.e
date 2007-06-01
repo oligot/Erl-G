@@ -72,7 +72,7 @@ feature -- Printing
 		end
 
 	print_item_by_name_switch_block (a_key_name: STRING;
-												an_element_list: DS_LINEAR [DS_PAIR [STRING, STRING]]) is
+									 an_element_list: DS_LINEAR [DS_PAIR [STRING, STRING]]) is
 			-- Generate a if/elseif swtichblock that allows to access the
 			-- elements by its key. TODO: The generated code could be
 			-- further optimized to inspect on characters.
@@ -81,7 +81,7 @@ feature -- Printing
 			an_element_list_not_void: an_element_list /= Void
 			an_element_list_does_not_have_void: not an_element_list.has (Void)
 		local
-			trie: ERL_G_TRIE [STRING]
+			trie: ERL_G_TRIE [STRING, CHARACTER]
 			cs: DS_LINEAR_CURSOR [DS_PAIR [STRING, STRING]]
 		do
 			from
@@ -91,20 +91,20 @@ feature -- Printing
 			until
 				cs.off
 			loop
-				trie.put (cs.item.first, cs.item.second)
+				trie.put (cs.item.first, string_to_indexable (cs.item.second))
 				cs.forth
 			end
 			output_stream.put_line ("i := 1")
 			print_switch_for_trie_node (a_key_name, trie.root_node)
 		end
 
-	print_switch_for_trie_node (a_key_name: STRING; a_node: ERL_G_TRIE_NODE [STRING]) is
+	print_switch_for_trie_node (a_key_name: STRING; a_node: ERL_G_TRIE_NODE [STRING, CHARACTER]) is
 			-- Print switch block for `a_node'.
 		require
 			a_key_name_not_void: a_key_name /= Void
 			a_node_not_void: a_node /= Void
 		local
-			cs: DS_LINEAR_CURSOR [ERL_G_TRIE_NODE [STRING]]
+			cs: DS_LINEAR_CURSOR [ERL_G_TRIE_NODE [STRING, CHARACTER]]
 		do
 				-- Check if there is a match at the current level
 			if a_node.has_item then
@@ -119,7 +119,7 @@ feature -- Printing
 				end
 				output_stream.indent
 				output_stream.put_string ("Result := ")
-				output_stream.put_line (a_node.value)
+				output_stream.put_line (a_node.item)
 				output_stream.dedent
 				output_stream.put_line ("end")
 			end
@@ -143,7 +143,7 @@ feature -- Printing
 					cs.off
 				loop
 					output_stream.put_string ("when ")
-					put_quoted_eiffel_character (output_stream, cs.item.key)
+					put_quoted_eiffel_character (output_stream, cs.item.key_item)
 					output_stream.put_line (" then")
 					output_stream.indent
 					print_switch_for_trie_node (a_key_name, cs.item)
@@ -236,6 +236,30 @@ feature {NONE} -- Implementation
 
 	output_stream: ERL_G_INDENTING_TEXT_OUTPUT_FILTER
 			-- Output output stream
+
+	string_to_indexable (a_string: STRING): DS_INDEXABLE [CHARACTER] is
+			-- Chracters of `a_string' in a new linear
+		require
+			a_string_not_void: a_string /= Void
+		local
+			i: INTEGER
+			l: DS_ARRAYED_LIST [CHARACTER]
+		do
+			create l.make (a_string.count)
+			from
+				i := 1
+			until
+				i > a_string.count
+			loop
+				l.force_last (a_string.item (i))
+				i := i + 1
+			end
+			Result := l
+		ensure
+			linear_not_void: Result /= Void
+			count_correct: Result.count = a_string.count
+		end
+
 
 invariant
 
