@@ -222,7 +222,10 @@ feature
 						creator_index := creator_index + 1
 					end
 				end
-				if is_default_creatable (a_base_class, a_universe) then
+				if
+					is_default_creatable (a_base_class, a_universe) and
+					not a_base_class.is_creation_exported_to (a_base_class.seeded_procedure (a_universe.default_create_seed).name, a_universe.any_class, a_universe)
+				then
 					Result := Result + 1
 				end
 			end
