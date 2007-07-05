@@ -29,6 +29,7 @@
 	<cluster name="erl_g_generation_tester" location="${ERL_G}/test/generation" prefix="test_">
 		<cluster name="TESTGEN" unless="${ERL_G_NO_IMPLEMENTATION}"/>
 		<cluster name="reflection_library" unless="${ERL_G_NO_IMPLEMENTATION}"/>
+		<cluster name="test_rename"/>
 	</cluster>
 	<mount location="${GOBO}/library/kernel.xace"/>
 	<mount location="${GOBO}/library/test/library_skl.xace"/>
