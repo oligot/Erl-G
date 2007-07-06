@@ -48,7 +48,7 @@
 		<set name="define" value="${define} GOBO_DOTNET=true" if="${GOBO_DOTNET}"/>
 		<set name="output_option" value="--output-dir=&quot;${system_dir}/reflection_library&quot;"/>
 		<set name="xace_filename" value="${system_dir}/system.xace"/>
-		<exec executable="erl_g --define=&quot;${define}&quot; ${output_option} ${xace_filename} HASH_TABLE[ANY,STRING_8] DEFAULT_CREATABLE DEFAULT_CREATABLE_2 DEFAULT_CREATABLE_3 ARRAYED_LIST[INTEGER_32] STRING_HANDLER SPECIAL[INTEGER_32]"
+		<exec executable="erl_g --define=&quot;${define}&quot; ${output_option} ${xace_filename} HASH_TABLE[ANY,STRING_8] ARRAYED_LIST[INTEGER_32] SPECIAL[INTEGER_32]"
 				accept_errors="true"/>
 	</target>
 
