@@ -482,6 +482,9 @@ feature {NONE} -- Implementation
 			l_field_type: INTEGER
 		do
 			l_position := position (a_target, a_name)
+			check
+				l_position_not_zero: l_position /= 0
+			end
 			l_field_type := field_type (l_position, a_target)
 			inspect l_field_type
 			when Reference_type then

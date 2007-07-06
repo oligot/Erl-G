@@ -477,48 +477,45 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 				loop
 					feature_ := true_feature (class_, i)
 					if
-						feature_.clients.has_class (reflection_generator.universe.any_class) and
-							not feature_.name.is_infix and not feature_.name.is_prefix and
-							feature_.implementation_class = class_ and
-							feature_.first_precursor = Void
+						is_supported (feature_) and
+						feature_.implementation_class = class_ and
+						feature_.first_precursor = Void
 					then
-						pair := agent_entry (feature_, type_name)
-						list.put_last (pair)
+						list.put_last (agent_entry (feature_, type_name))
 					end
 					i := i + 1
 				end
-			end
-				-- Renamed features
-			if class_.parents /= Void then
-				from
-					i := 1
-				variant
-					class_.parents.count - i + 1
-				until
-					i > class_.parents.count
-				loop
-					parent := class_.parents.item (i).parent
-					if parent.renames /= Void then
-						from
-							j := 1
-						variant
-							parent.renames.count - j + 1
-						until
-							j > parent.renames.count
-						loop
-							rename_ := parent.renames.item (j).rename_pair
-							create expression.make (64)
-							expression.append_string ("universe.class_by_name (%"")
-							expression.append_string (parent.type.base_class (class_, reflection_generator.universe).name.name)
-							expression.append_string ("%").feature_ (%"")
-							expression.append_string (escaped_string (rename_.old_name.name))
-							expression.append_string ("%")")
-							create pair.make (expression, escaped_string (rename_.new_name.feature_name.name))
-							list.force_last (pair)
-							j := j + 1
+					-- Renamed features
+				if class_.parents /= Void then
+					from
+						i := 1
+					variant
+						class_.parents.count - i + 1
+					until
+						i > class_.parents.count
+					loop
+						parent := class_.parents.item (i).parent
+						if parent.renames /= Void then
+							from
+								j := 1
+							variant
+								parent.renames.count - j + 1
+							until
+								j > parent.renames.count
+							loop
+								rename_ := parent.renames.item (j).rename_pair
+								feature_ := class_.named_feature (rename_.new_name.feature_name)
+								check
+									feature_not_void: feature_ /= Void
+								end
+								if is_supported (feature_) then
+									list.put_last (agent_entry (feature_, type_name))
+								end
+								j := j + 1
+							end
 						end
+						i := i + 1
 					end
-					i := i + 1
 				end
 			end
 			create printer.make (output_stream)
@@ -560,53 +557,58 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 					query ?= feature_
 					if query /= Void then
 						if
-							feature_.clients.has_class (reflection_generator.universe.any_class) and
-								not feature_.name.is_infix and not feature_.name.is_prefix and
-								feature_.implementation_class = class_ and
-								feature_.first_precursor = Void
+							is_supported (feature_) and
+							feature_.implementation_class = class_ and
+							feature_.first_precursor = Void
 						then
-							pair := agent_entry (feature_, type_name)
-							list.put_last (pair)
+							list.put_last (agent_entry (feature_, type_name))
 						end
 					end
 					i := i + 1
 				end
-			end
-				-- Renamed features
-			if class_.parents /= Void then
-				from
-					i := 1
-				variant
-					class_.parents.count - i + 1
-				until
-					i > class_.parents.count
-				loop
-					parent := class_.parents.item (i).parent
-					if parent.renames /= Void then
-						from
-							j := 1
-						variant
-							parent.renames.count - j + 1
-						until
-							j > parent.renames.count
-						loop
-							rename_ := parent.renames.item (j).rename_pair
-							create expression.make (64)
-							expression.append_string ("universe.class_by_name (%"")
-							expression.append_string (parent.type.base_class (class_, reflection_generator.universe).name.name)
-							expression.append_string ("%").query (%"")
-							expression.append_string (escaped_string (rename_.old_name.name))
-							expression.append_string ("%")")
-							create pair.make (expression, escaped_string (rename_.new_name.feature_name.name))
-							list.force_last (pair)
-							j := j + 1
+					-- Renamed features
+				if class_.parents /= Void then
+					from
+						i := 1
+					variant
+						class_.parents.count - i + 1
+					until
+						i > class_.parents.count
+					loop
+						parent := class_.parents.item (i).parent
+						if parent.renames /= Void then
+							from
+								j := 1
+							variant
+								parent.renames.count - j + 1
+							until
+								j > parent.renames.count
+							loop
+								rename_ := parent.renames.item (j).rename_pair
+								query := class_.named_query (rename_.new_name.feature_name)
+								if query /= Void then
+									if is_supported (query) then
+										list.put_last (agent_entry (query, type_name))
+									end
+								end
+								j := j + 1
+							end
 						end
+						i := i + 1
 					end
-					i := i + 1
 				end
 			end
 			create printer.make (output_stream)
 			printer.print_item_by_name_query ("immediate_query", "FUNCTION [ANY, TUPLE, ANY]", list)
+		end
+
+	is_supported (a_feature: ET_FEATURE): BOOLEAN is
+			-- Is `a_feature' supported for reflection ?
+		require
+			a_feature_not_void: a_feature /= Void
+		do
+			Result := 	a_feature.clients.has_class (reflection_generator.universe.any_class) and
+					not a_feature.name.is_infix and not a_feature.name.is_prefix
 		end
 
 	agent_entry (a_feature: ET_FEATURE; a_type_name: STRING): DS_PAIR [STRING, STRING] is
