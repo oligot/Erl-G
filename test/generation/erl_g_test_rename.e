@@ -28,11 +28,11 @@ feature -- Execution
 			r: ERL_CLASS
 			a: ANY
 		do
-			r := universe.class_by_name ("B")
+			r := universe.class_by_name ("TEST_RENAME_B")
 			r.invoke_creation_procedure ("", Void, <<>>)
 			a := r.last_result
 			r.invoke_query ("d", a, <<>>)
-			assert_strings_equal ("type correct", "D", r.last_result.generating_type)
+			assert_strings_equal ("type correct", "TEST_RENAME_D", r.last_result.generating_type)
 		end
 
 end
