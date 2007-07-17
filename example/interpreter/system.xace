@@ -37,38 +37,4 @@
   <mount location="${ERL_G}/library/runtime/library.xace"/>
   <mount location="${GOBO}/library/kernel.xace"/>
 
-
-  <cluster name="vision2" location="${ISE_EIFFEL}/library/vision2">
-	<cluster name="contrib">
-		<cluster name="multiple_split_area"/>
-		<cluster name="implementation">
-			<cluster name="gtk"/>
-		</cluster>
-	</cluster>
-	<cluster name="spec">
-		<option name="recursive" value="true"/>
-	</cluster>
-	<cluster name="Clib"/>
-	<cluster name="interface">
-		<option name="recursive" value="true"/>
-	</cluster>
-	<cluster name="implementation">
-		<option name="recursive" value="true"/>
-	</cluster>
-  </cluster>	
-
-
-  <option name="header" value="/usr/include/gtk-2.0 "/>
-  <option name="header" value="/usr/lib/gtk-2.0/include"/>
-  <option name="header" value="/usr/include/atk-1.0"/>
-  <option name="header" value="/usr/include/cairo"/>
-  <option name="header" value="/usr/include/pango-1.0"/>
-  <option name="header" value="/usr/include/glib-2.0"/>
-  <option name="header" value="/usr/lib/glib-2.0/include"/>
- 
-  <option name="header" value="/opt/Eiffel5/library/vision2/spec/include"/>
-  <option name="header" value="/opt/Eiffel5/library/vision2/implementation/gtk/Clib"/>
-  <option name="link" value="`/opt/Eiffel5/library/vision2/implementation/gtk/Clib/vision2-gtk-config --object`"/>
-  <option name="link" value="`/opt/Eiffel5/library/vision2/implementation/gtk/Clib/vision2-gtk-config --library`"/>
-
 </system>
