@@ -228,6 +228,19 @@ feature -- Invokation
 			last_result_not_void: last_result /= Void
 		end
 
+	creation_function (a_actuals: STRING; a_name: STRING): FUNCTION [ANY, TUPLE, ANY] is
+			-- Creation function named `a_name' for the type based on the
+			-- class represented by Current and the actuals `a_actuals';
+			-- the default creation procedure can be queried using a void
+			-- name (if it exists for the given type). Note that the
+			-- actuals must be normalized according to the Eiffel style
+			-- guidelines.
+		require
+			a_actuals_not_void: a_actuals /= Void
+			is_instantiatable: is_instantiatable (a_actuals)
+		deferred
+		end
+
 	invoke_feature (a_name: STRING; a_target: ANY; a_arguments: ARRAY [ANY]) is
 			-- Invoke feature named `a_name' on `a_target' using `a_arguments'. Dismiss results if any.
 		require
@@ -255,8 +268,6 @@ feature -- Invokation
 			function.call (operands (a_name, a_target, a_arguments))
 			last_result := function_result (function)
 		end
-
-feature {ERL_CLASS} -- Implementation
 
 	feature_ (a_name: STRING): ROUTINE [ANY, TUPLE] is
 			-- Feature named `a_name'
@@ -368,20 +379,6 @@ feature {NONE} -- Implementation
 			else
 				Result := a_function.last_result
 			end
-
-		end
-
-	creation_function (a_actuals: STRING; a_name: STRING): FUNCTION [ANY, TUPLE, ANY] is
-			-- Creation function named `a_name' for the type based on the
-			-- class represented by Current and the actuals `a_actuals';
-			-- the default creation procedure can be queried using a void
-			-- name (if it exists for the given type). Note that the
-			-- actuals must be normalized according to the Eiffel style
-			-- guidelines.
-		require
-			a_actuals_not_void: a_actuals /= Void
-			is_instantiatable: is_instantiatable (a_actuals)
-		deferred
 		end
 
 	immediate_feature (a_name: STRING): ROUTINE [ANY, TUPLE] is
