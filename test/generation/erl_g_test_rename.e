@@ -28,6 +28,11 @@ feature -- Execution
 			r: ERL_CLASS
 			a: ANY
 		do
+			r := universe.class_by_name ("STRING_8")
+			r.invoke_creation_procedure ("", "make_empty", <<>>)
+			a := r.last_result
+			r.invoke_feature ("set_count", a, <<10>>)
+
 			r := universe.class_by_name ("TEST_RENAME_B")
 			r.invoke_creation_procedure ("", Void, <<>>)
 			a := r.last_result
