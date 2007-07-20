@@ -309,6 +309,84 @@ feature -- Invokation
 			end
 		end
 
+feature {ANY} -- Operands
+
+	creation_function_operands (a_actuals: STRING; a_name: STRING; an_arguments: ARRAY [ANY]): TUPLE is
+			-- Operand tuple for creation procedure `a_name' containing
+			-- the items of `a_arguments' or `Void' if there is a type
+			-- mismatch
+		require
+			a_actuals_not_void: a_actuals /= Void
+			is_instantiatable: is_instantiatable (a_actuals)
+			an_arguments_not_void: an_arguments /= Void
+			a_name_valid: is_valid_creation_procedure_name (a_actuals, a_name)
+		local
+			i: INTEGER
+		do
+			Result := creation_function (a_actuals, a_name).empty_operands
+			if Result = Void then
+				create Result
+			elseif Result.count /= an_arguments.count then
+				Result := Void
+			else
+				Result := Result.twin
+				from
+					i := 1
+				until
+					i > an_arguments.count or Result = Void
+				loop
+					if Result.valid_type_for_index (an_arguments.item (i), i) then
+						Result.put (an_arguments.item (i), i)
+						i := i + 1
+					else
+						Result := Void
+					end
+				end
+			end
+		ensure
+			operands_count_valid: Result /= Void implies Result.count = an_arguments.count
+		end
+
+	operands (a_name: STRING; a_target: ANY; an_arguments: ARRAY [ANY]): TUPLE is
+			-- Operand tuple for feature `a_name' containing `a_target'
+			-- and the items of `a_arguments' or `Void' if there is a
+			-- type mismatch
+		require
+			a_name_not_void: a_name /= Void
+			a_target_not_void: a_target /= Void
+			an_arguments_not_void: an_arguments /= Void
+			a_name_valid: is_valid_feature_name (a_name)
+		local
+			i: INTEGER
+		do
+			Result := feature_ (a_name).empty_operands.twin
+			if
+				Result.count /= an_arguments.count + 1 or
+				not Result.valid_type_for_index (a_target, 1)
+			then
+				Result := Void
+			else
+				Result.put (a_target, 1)
+				from
+					i := 1
+				until
+					i > an_arguments.count or Result = Void
+				loop
+					if Result.valid_type_for_index (an_arguments.item (i), i + 1) then
+						Result.put (an_arguments.item (i), i + 1)
+						i := i + 1
+					else
+						Result := Void
+					end
+				end
+			end
+		ensure
+			operands_count_valid: Result /= Void implies Result.count = an_arguments.count + 1
+			target_set: Result /= Void implies Result.item (1) = a_target
+		end
+
+
+
 feature {NONE} -- Implementation
 
 	function_result (a_function: FUNCTION [ANY, TUPLE, ANY]): ANY is
@@ -393,80 +471,6 @@ feature {NONE} -- Implementation
 		require
 			a_name_not_void: a_name /= Void
 		deferred
-		end
-
-	creation_function_operands (a_actuals: STRING; a_name: STRING; an_arguments: ARRAY [ANY]): TUPLE is
-			-- Operand tuple for creation procedure `a_name' containing
-			--  the items of `a_arguments' or `Void' if -- there is a
-			--  type mismatch
-		require
-			a_actuals_not_void: a_actuals /= Void
-			is_instantiatable: is_instantiatable (a_actuals)
-			an_arguments_not_void: an_arguments /= Void
-			a_name_valid: is_valid_creation_procedure_name (a_actuals, a_name)
-		local
-			i: INTEGER
-		do
-			Result := creation_function (a_actuals, a_name).empty_operands
-			if Result = Void then
-				create Result
-			elseif Result.count /= an_arguments.count then
-				Result := Void
-			else
-				Result := Result.twin
-				from
-					i := 1
-				until
-					i > an_arguments.count or Result = Void
-				loop
-					if Result.valid_type_for_index (an_arguments.item (i), i) then
-						Result.put (an_arguments.item (i), i)
-						i := i + 1
-					else
-						Result := Void
-					end
-				end
-			end
-		ensure
-			operands_count_valid: Result /= Void implies Result.count = an_arguments.count
-		end
-
-	operands (a_name: STRING; a_target: ANY; an_arguments: ARRAY [ANY]): TUPLE is
-			-- Operand tuple for feature `a_name' containing `a_target'
-			-- and the items of `a_arguments' or `Void' if there is a
-			-- type mismatch
-		require
-			a_name_not_void: a_name /= Void
-			a_target_not_void: a_target /= Void
-			an_arguments_not_void: an_arguments /= Void
-			a_name_valid: is_valid_feature_name (a_name)
-		local
-			i: INTEGER
-		do
-			Result := feature_ (a_name).empty_operands.twin
-			if
-				Result.count /= an_arguments.count + 1 or
-				not Result.valid_type_for_index (a_target, 1)
-			then
-				Result := Void
-			else
-				Result.put (a_target, 1)
-				from
-					i := 1
-				until
-					i > an_arguments.count or Result = Void
-				loop
-					if Result.valid_type_for_index (an_arguments.item (i), i + 1) then
-						Result.put (an_arguments.item (i), i + 1)
-						i := i + 1
-					else
-						Result := Void
-					end
-				end
-			end
-		ensure
-			operands_count_valid: Result /= Void implies Result.count = an_arguments.count + 1
-			target_set: Result /= Void implies Result.item (1) = a_target
 		end
 
 	attribute_value (a_name: STRING; a_target: ANY): ANY is
