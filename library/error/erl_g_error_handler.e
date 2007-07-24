@@ -19,7 +19,7 @@ inherit
 			report_error_message
 		end
 
-creation
+create
 
 	make
 
@@ -108,10 +108,10 @@ feature -- Reporting errors
 			report_error (an_error)
 		end
 
-	report_missing_ace_filename_error is
-			-- Report that no ace filename has been provided.
+	report_missing_ecf_filename_error is
+			-- Report that no ecf filename has been provided.
 		do
-			report_error_message ("No ace-filename has been provided. Please provide one for the system that you want to make reflectable.")
+			report_error_message ("No ecf-filename has been provided. Please provide one for the system that you want to make reflectable.")
 		end
 
 	report_invalid_or_unknown_type_error (a_type_name: STRING) is
