@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-2-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-2-0 http://www.eiffel.com/developers/xml/configuration-1-2-0.xsd" name="erl_g_runtime" uuid="6A258608-2A09-456D-9F45-2B2CF630A78F" library_target="erl_g_runtime">
+	<target name="erl_g_runtime">
+		<root all_classes="true"/>
+		<option warning="true">
+			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
+		</option>
+		<variable name="exclude_empty_implementation" value="false"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<cluster name="erl_g_runtime" location=".\" recursive="true">
+			<file_rule>
+				<exclude>/.svn$</exclude>
+				<exclude>/EIFGENs$</exclude>
+				<exclude>empty_implementation</exclude>
+			</file_rule>
+			<cluster name="empty_implementation" location="empty_implementation\" recursive="true">
+				<condition>
+					<custom name="exclude_empty_implementation" value="false"/>
+				</condition>
+			</cluster>
+		</cluster>
+	</target>
+</system>

@@ -179,7 +179,7 @@ feature
 	Version_number: STRING is
 			-- Current version number of erl_g
 		once
-			Result := "1.2.0"
+			Result := "1.3.0"
 		ensure
 			version_number_not_void: Result /= Void
 		end

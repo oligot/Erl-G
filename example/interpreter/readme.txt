@@ -4,10 +4,9 @@ classes nor derive new types at runtime.
 
 To run the example you have to do the following:
 
-# geant install
+Run `geant install'
  
-# geant compile
-
+Compile the example with EiffelStudio using the file `interpreter.ecf'
 
 Please note that the example depends only on the Erl-G runtime classes
 and not on all of Erl-G and its dependencies.

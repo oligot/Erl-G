@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 
-<project name="erl_g" default="help">
+<project name="ecfgelint" default="help">
 
 	<description>
-		description: "Eiffel Ant file for 'erl_g'"
-		system: "erl_g"
-		copyright: "Copyright (c) 2004-2005, Andreas Leitner and others"
+		description: "Eiffel Ant file for 'ecfgelint'"
+		system: "auto_test"
+		copyright: "Copyright (c) 2005-2007, Andreas Leitner and others"
 		license: "Eiffel Forum License v2 (see forum.txt)"
 		date: "$Date$"
 		revision: "$Revision$"
@@ -21,8 +21,8 @@
 <!-- Implementation -->
 
 	<target name="init_system">
-		<set name="system" value="erl_g"/>
-		<set name="system_dir" value="${ERL_G}/src/erl_g"/>
+		<set name="system" value="gutentag"/>
+		<set name="system_dir" value="${ERL_G}/src/gutentag"/>
 	</target>
 
 </project>

@@ -14,7 +14,7 @@
   <inherit>
     <parent location="${GOBO}/misc/eiffel.eant">
       <redefine target="init_system"/>
-      <redefine target="other_install"/>
+      <redefine target="install"/>
       <redefine target="other_clean"/>
     </parent>
   </inherit>
@@ -27,11 +27,10 @@
     <set name="system_dir" value="${ERL_G}/example/interpreter"/>
   </target>
 
-  <target name="other_install" depend="init">
+  <target name="install" depend="init">
     <description>
       Generate reflection meta-classes.
     </description>
-    <set name="eiffel" value="ise"/>
     <set name="type_list" value=""/>
     <geant target="erl_g"/>
   </target>
@@ -48,13 +47,7 @@
       Invoke the 'erl_g' tool on the current system. Make classes in
       ${type_list} creatable.
     </description>
-
-    <set name="define" value="GOBO_EIFFEL=${eiffel}"/>
-    <set name="define" value="${define} GOBO_OS=${GOBO_OS}" if="${GOBO_OS}"/>
-    <set name="define" value="${define} GOBO_CC=${GOBO_CC}" if="${GOBO_CC}"/>
-    <set name="define" value="${define} GOBO_XML_EXPAT=true" if="${GOBO_XML_EXPAT}"/>
-    <set name="define" value="${define} GOBO_DOTNET=true" if="${GOBO_DOTNET}"/>
-    <exec executable="erl_g --define=&quot;${define}&quot; ${system_dir}/system.xace ${type_list}"/>
+    <exec executable="erl_g ${system_dir}/interpreter.ecf ${type_list}"/>
   </target>
 
 </project>

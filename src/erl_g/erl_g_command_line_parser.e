@@ -1,3 +1,4 @@
+
 indexing
 
 	description:
@@ -24,20 +25,22 @@ feature -- Status report
 	output_dirname: STRING
 			-- Name of output directory
 
-	defined_variables: STRING
-			-- Defined variables
+	ecf_filename: STRING
+			-- Name of ecf file of input system
 
-	ace_filename: STRING
-			-- Name of ace file of input system
+	target: STRING
+			-- Target in ecf file to use; If there is only one
+			-- target the name can be ommited and this attribute
+			-- will be left Void.
 
 	type_names: DS_LINKED_LIST [STRING]
 			-- Type names requested to be reflectable by user; note that
 			-- dependent types will be made reflectable automatically as
 			-- well.
 
-	void_feature: BOOLEAN
-			-- Shall "Void" be treated as a feature? If `False' "Void"
-			-- will be treated as a keyword instead.
+	is_workbench_mode: BOOLEAN
+			-- Should the conditional in the ecf file named `ecf_filename' be evaluated
+			-- with workbench mode equal to True?
 
 feature -- Parsing
 
@@ -47,9 +50,9 @@ feature -- Parsing
 			parser: AP_PARSER
 			version_option: AP_FLAG
 			verbose_option: AP_FLAG
-			void_option: AP_FLAG
-			define_option: AP_STRING_OPTION
+			wb_option: AP_FLAG
 			output_dir_option: AP_STRING_OPTION
+			target_option: AP_STRING_OPTION
 			ise_option: AP_FLAG
 			ecma_option: AP_FLAG
 			cs: DS_LINEAR_CURSOR [STRING]
@@ -66,17 +69,17 @@ feature -- Parsing
 			verbose_option.set_description ("Be verbose.")
 			parser.options.force_last (verbose_option)
 
-			create void_option.make ('o', "void")
-			void_option.set_description ("Consider 'void' a keyword.")
-			parser.options.force_last (void_option)
-
-			create define_option.make ('d', "define")
-			verbose_option.set_description ("Define variable assignments for xace files")
-			parser.options.force_last (define_option)
+			create wb_option.make ('w', "workbench")
+			wb_option.set_description ("Assume workbench mode")
+			parser.options.force_last (wb_option)
 
 			create output_dir_option.make ('o', "output-dir")
 			output_dir_option.set_description ("Output directory for reflection library")
 			parser.options.force_last (output_dir_option)
+
+			create target_option.make ('t', "target")
+			target_option.set_description ("Target of ecf file to use.")
+			parser.options.force_last (target_option)
 
 			create ise_option.make ('i', "ise")
 			ise_option.set_description ("Follow Eiffel as implemented in the latest version of EiffelStudio")
@@ -99,25 +102,25 @@ feature -- Parsing
 				error_handler.enable_verbose
 			end
 
-			if void_option.was_found then
-				void_feature := True
-			end
-
-			if define_option.was_found then
-				defined_variables := define_option.parameter
+			if wb_option.was_found then
+				is_workbench_mode := True
 			end
 
 			if output_dir_option.was_found then
 				output_dirname := output_dir_option.parameter
 			end
 
+			if target_option.was_found then
+				target := target_option.parameter
+			end
+
 			if parser.parameters.count = 0 then
-				error_handler.report_missing_ace_filename_error
+				error_handler.report_missing_ecf_filename_error
 				-- TODO: Display usage_instruction (currently not exported, find better way to do it.)
 				-- error_handler.report_info_message (parser.help_option.usage_instruction (parser))
 				Exceptions.die (1)
 			else
-				ace_filename := parser.parameters.first
+				ecf_filename := parser.parameters.first
 				from
 					create type_names.make
 					cs := parser.parameters.new_cursor

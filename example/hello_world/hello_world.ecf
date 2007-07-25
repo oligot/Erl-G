@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<system xmlns="http://www.eiffel.com/developers/xml/configuration-1-2-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-2-0 http://www.eiffel.com/developers/xml/configuration-1-2-0.xsd" name="hello_world" uuid="2F1A304A-BAE3-4986-8BB3-281196F42579">
+	<target name="hello_world">
+		<root class="HELLO_WORLD" feature="execute"/>
+		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
+		<library name="time" location="$ISE_LIBRARY\library\time\time.ecf"/>
+		<cluster name="erl_g_runtime" location="..\..\library\runtime\" recursive="true">
+			<file_rule>
+				<exclude>/.svn$</exclude>
+				<exclude>/EIFGENs$</exclude>
+				<exclude>empty_implementation</exclude>
+			</file_rule>
+			<cluster name="empty_implementation" location="empty_implementation\" recursive="true">
+				<condition>
+					<custom name="exclude_empty_implementation" value="false"/>
+				</condition>
+			</cluster>
+		</cluster>
+		<cluster name="hello_world" location=".\" recursive="true">
+			<file_rule>
+				<exclude>\EIFGENs$</exclude>
+				<exclude>\.svn$</exclude>
+				<exclude>\reflection_generation$</exclude>
+			</file_rule>
+		</cluster>
+		<override name="reflection_library" location="reflection_library\" recursive="true"/>
+	</target>
+</system>

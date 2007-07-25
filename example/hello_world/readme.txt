@@ -1,7 +1,7 @@
 This is a simple example that demonstrates the use of Erl-G. To run the
 example you have to do the following:
 
-# geant install
+Run `geant install'
  
   This will run the 'erl_g' tool. Via the file 'build.eant' 'erl_g' is
   instructed to generate meta-classes for class PERSON. To see the
@@ -9,7 +9,7 @@ example you have to do the following:
   install'. The resulting meta classes will be stored in directory 
   'reflection_library'.
 
-# geant compile
+Compile the example with EiffelStudio using the file `hello_world.ecf'
 
   This will compile a system with the root class HELLO_WORLD. The
   generated executable will at runtime introspect and use the features of

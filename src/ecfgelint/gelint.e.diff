@@ -1,0 +1,72 @@
+--- gelint.e	2007-07-24 10:23:37.000000000 +0200
++++ /home/aleitner/eclipse/gobo/src/gelint/gelint.e	2007-02-17 14:58:28.000000000 +0100
+@@ -6,8 +6,8 @@
+ 
+ 	copyright: "Copyright (c) 1999-2007, Eric Bezault and others"
+ 	license: "MIT License"
+-	date: "$Date: 2007-07-24 10:23:37 +0200 (Tue, 24 Jul 2007) $"
+-	revision: "$Revision: 668 $"
++	date: "$Date: 2007-02-17 14:58:28 +0100 (Sat, 17 Feb 2007) $"
++	revision: "$Revision: 5893 $"
+ 
+ class GELINT
+ 
+@@ -97,8 +97,6 @@
+ 						report_usage_message
+ 						Exceptions.die (1)
+ 					end
+-				elseif arg.count > 9 and then arg.substring (1,9).is_equal ("--target=") then
+-					ecf_target := arg.substring (10, arg.count)
+ 				elseif i = nb then
+ 					a_filename := arg
+ 				else
+@@ -119,7 +117,7 @@
+ 					if nb > 5 and then a_filename.substring (nb - 4, nb).is_equal (".xace") then
+ 						parse_xace_file (a_file)
+ 					elseif nb > 4 and then a_filename.substring (nb - 3, nb).is_equal (".ecf") then
+-						parse_ecf_file (a_filename)
++						parse_ecf_file (a_file)
+ 					else
+ 						parse_ace_file (a_file)
+ 					end
+@@ -162,9 +160,6 @@
+ 
+ feature -- Access
+ 
+-	ecf_target: STRING
+-			-- ECF target to use
+-
+ 	error_handler: UT_ERROR_HANDLER
+ 			-- Error handler
+ 
+@@ -241,23 +236,16 @@
+ 			end
+ 		end
+ 
+-	parse_ecf_file (a_filename: STRING) is
+-			-- Read ECF file `a_filename'.
++	parse_ecf_file (a_file: KI_CHARACTER_INPUT_STREAM) is
++			-- Read ECF file `a_file'.
+ 			-- Put result in `last_universe' if no error occurred.
+ 		require
+-			a_file_not_void_or_empty: a_filename /= Void and then not a_filename.is_empty
+-		local
+-			a_ecf_parser: ET_ECF_PARSER
++			a_file_not_void: a_file /= Void
++			a_file_open_read: a_file.is_open_read
+ 		do
+-			last_universe := Void
+-			create a_ecf_parser.make_standard
+-			if ecf_target /= Void then
+-				a_ecf_parser.set_target (ecf_target)
+-			end
+-			a_ecf_parser.load (a_filename)
+-			if not a_ecf_parser.is_error then
+-				last_universe := a_ecf_parser.last_universe
+-			end
++				-- ECF is not supported.
++				-- Parse Ace file as default.
++			parse_ace_file (a_file)
+ 		end
+ 
+ feature {NONE} -- Processing

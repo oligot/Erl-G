@@ -30,7 +30,7 @@ feature -- Execution
 		do
 			print ("Creating a new object of type PERSON...%N")
 			person_class := universe.class_by_name ("PERSON")
-			person_class.invoke_creation_procedure ("", "make", <<"Anca Dobos", 25>>)
+			person_class.invoke_creation_procedure ("", Void, <<"Anca Dobos", 25>>)
 			person_object := person_class.last_result
 			print ("Person object: ")
 			print (person_object)
