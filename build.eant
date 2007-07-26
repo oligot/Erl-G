@@ -83,15 +83,11 @@
 
 		<geant target="clobber"/>
 		<geant target="install"/>
+		<available resource="${ERL_G}/bin/erl_g${exe}" variable="erl_g_binary_available"/>
+		<geant target="compile" if="${erl_g_binary_available}=false"/>
 		<geant target="clean"/>
 		<geant target="install"/>
-		<delete>
-			<fileset directory="." include="@(**/.cvsignore)"/>
-		</delete>
-		<delete>
-			<directoryset directory="." include="@(**/CVS)"/>
-		</delete>
-		<delete file=".project"/>
+		<exec executable="find ${ERL_G} -name .svn -type d | xargs -n 1 rm -rf"/>
 	</target>
 
 <!-- Implementation -->
