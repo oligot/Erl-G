@@ -60,6 +60,7 @@
 
 		<geant target="remove_backup_files"/>
 		<geant file="${ERL_G}/src/erl_g/build.eant" target="clobber" dir="src/erl_g"/>
+		<geant file="${ERL_G}/src/ecfgelint/build.eant" target="clobber" dir="src/ecfgelint"/>
 		<delete file="${ERL_G}/bin/erl_g${exe}"/>
 		<delete file="${ERL_G}/bin/ecfgelint${exe}"/>
 		<geant file="${ERL_G}/example/hello_world/build.eant" target="clobber" dir="example/hello_world"/>

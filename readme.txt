@@ -7,6 +7,6 @@ you can make an arbitrary Eiffel system introspectable/reflectable.
 Documentation:
 --------------
 
-For further information please refere to the documentation located
+For further information please refer to the documentation located
 in directory doc.
 
