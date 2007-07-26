@@ -158,7 +158,7 @@ feature -- Basic operation
 				end
 
 				if not is_error then
-						-- parse the whole system (parses all used libraries)
+						-- Parse the whole system (parses all used libraries)
 					create l_parse_visitor.make_build (state, application_target, l_factory)
 					application_target.process (l_parse_visitor)
 					if l_parse_visitor.is_error then
@@ -175,10 +175,10 @@ feature -- Basic operation
 						end
 					end
 
-						-- put the targets that make up the system into last_targets
+						-- Put the targets that make up the system into last_targets
 					last_targets := last_system.all_libraries.linear_representation
 
-						-- generate the gobo universe
+						-- Generate the gobo universe
 					generate_universe
 				end
 			end
@@ -209,7 +209,7 @@ feature {NONE} -- Implementation
 				-- compiler version
 			l_version.force (create {CONF_VERSION}.make_from_string (compiler_version.out), v_compiler)
 
-				-- platform
+				-- Platform
 			create l_plat
 			if not application_target.setting_platform.is_empty then
 				l_platform := get_platform (application_target.setting_platform)
@@ -223,19 +223,19 @@ feature {NONE} -- Implementation
 				l_platform := pf_mac
 			end
 
-				-- build
+				-- Build
 			if is_workbench_build then
 				l_build := build_workbench
 			else
 				l_build := build_finalize
 			end
 
-				-- build state
+				-- Build state
 			create Result.make (l_platform, l_build, application_target.setting_multithreaded, application_target.setting_msil_generation, application_target.setting_dynamic_runtime, application_target.variables, l_version)
 		end
 
 	generate_universe is
-			-- Generate a gobo universe representing a flat view of the system.
+			-- Generate a Gobo universe representing a flat view of the system.
 		require
 			last_targets_not_void: last_targets /= Void
 			application_target_not_void: application_target /= Void
@@ -256,7 +256,7 @@ feature {NONE} -- Implementation
 			loop
 				l_target := last_targets.item
 
-					-- loop trough all enabled clusters and create gobo clusters
+					-- Loop trough all enabled clusters and create gobo clusters
 				from
 					l_clusters := l_target.clusters
 					l_clusters.start
@@ -272,7 +272,7 @@ feature {NONE} -- Implementation
 				last_targets.forth
 			end
 
-				-- add overrides from the application target
+				-- Add overrides from the application target
 			from
 				l_clusters := l_target.overrides
 				l_clusters.start
@@ -286,8 +286,9 @@ feature {NONE} -- Implementation
 				l_clusters.forth
 			end
 
-				-- create a universe from the clusters
+				-- Create a universe from the clusters
 			create last_universe.make (l_et_clusters, error_handler)
+			last_universe.set_system_name (application_target.system.name)
 		ensure
 			last_universe_set: last_universe /= Void
 		end
