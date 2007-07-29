@@ -104,7 +104,7 @@
 		</description>
 
 		<exec executable="ec -finalize -c_compile -config ${a_program}.ecf" dir="src/${a_program}"/>
-		<move file="${system_dir}/src/${a_program}/EIFGENs/${a_program}/F_code/${a_program}" to_directory="${system_dir}/bin"/>
+		<move file="${system_dir}/src/${a_program}/EIFGENs/${a_program}/F_code/${a_program}${exe}" to_directory="${system_dir}/bin"/>
 	</target>
 
 </project>
