@@ -28,6 +28,9 @@ inherit
 	UT_SHARED_ISE_VERSIONS
 		export {NONE} all end
 
+	EIFFEL_ENV
+		export {NONE} all end
+
 create
 
 	execute
@@ -40,7 +43,9 @@ feature -- Execution
 			a_ecf_parser: ET_ECF_PARSER
 			a_universe: ET_UNIVERSE
 		do
-			Arguments.set_program_name ("erl_g")
+			check_environment_variable
+			set_precompile (False)
+			Arguments.set_program_name (application_name)
 			create error_handler.make
 			output_dirname := "reflection_library"
 			process_arguments
@@ -112,5 +117,9 @@ feature {NONE} -- Processing
 
 			l_generator.generate_all (output_dirname)
 		end
+
+	application_name: STRING is "erl_g"
+			-- Name of application
+
 
 end

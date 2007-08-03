@@ -30,6 +30,9 @@ inherit
 	KL_SHARED_EXECUTION_ENVIRONMENT
 		export {NONE} all end
 
+	EIFFEL_ENV
+		export {NONE} all end
+
 creation
 
 	execute
@@ -56,7 +59,7 @@ feature -- Execution
 			i, nb: INTEGER
 			arg: STRING
 		do
-			Arguments.set_program_name ("gutentag")
+			Arguments.set_program_name (application_name)
 			create error_handler.make_standard
 			nb := Arguments.argument_count
 			tag_format := formats.emacs_code
@@ -148,6 +151,8 @@ feature -- Execution
 						a_universe := an_xace_parser.last_universe
 					end
 				elseif nb > 4 and then a_filename.substring (nb - 3, nb).is_equal (".ecf") then
+					check_environment_variable
+					set_precompile (False)
 					create a_ecf_parser.make_standard
 					if ecf_target /= Void then
 						a_ecf_parser.set_target (ecf_target)
@@ -254,6 +259,7 @@ feature {NONE} -- Constants
 	default_input_filename: STRING is "system.xace"
 	default_emacs_output_filename: STRING is "TAGS"
 	default_vi_output_filename: STRING is "tags"
+	application_name: STRING is "gutentag"
 
 invariant
 

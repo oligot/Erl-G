@@ -29,6 +29,9 @@ inherit
 	UT_SHARED_ECMA_VERSIONS
 		export {NONE} all end
 
+	EIFFEL_ENV
+		export {NONE} all end
+
 create
 
 	execute
@@ -45,7 +48,7 @@ feature -- Execution
 			a_ise_version: STRING
 			a_ise_regexp: RX_PCRE_REGULAR_EXPRESSION
 		do
-			Arguments.set_program_name ("gelint")
+			Arguments.set_program_name (application_name)
 			create error_handler.make_standard
 			is_flat_dbc := True
 			nb := Arguments.argument_count
@@ -249,6 +252,8 @@ feature {NONE} -- Eiffel config file parsing
 		local
 			a_ecf_parser: ET_ECF_PARSER
 		do
+			check_environment_variable
+			set_precompile (False)
 			last_universe := Void
 			create a_ecf_parser.make_standard
 			if ecf_target /= Void then
@@ -337,10 +342,12 @@ feature -- Error handling
 			-- Gelint usage message.
 		once
 			create Result.make ("[--ecma][--ise[=major[.minor[.revision[.build]]]]][--define=variables]%N%
-				%%T[--flat][--noflatdbc][--cat][--void][--silent][--verbose] ace_filename")
+				%%T[--flat][--noflatdbc][--cat][--void][--silent][--verbose][--target=ecf-target] ace_filename")
 		ensure
 			usage_message_not_void: Result /= Void
 		end
+
+	application_name: STRING is "gelint"
 
 invariant
 
