@@ -59,7 +59,7 @@ feature -- Execution
 			i, nb: INTEGER
 			arg: STRING
 		do
-			Arguments.set_program_name (application_name)
+			Arguments.set_program_name ("gutentag")
 			create error_handler.make_standard
 			nb := Arguments.argument_count
 			tag_format := formats.emacs_code
@@ -259,7 +259,10 @@ feature {NONE} -- Constants
 	default_input_filename: STRING is "system.xace"
 	default_emacs_output_filename: STRING is "TAGS"
 	default_vi_output_filename: STRING is "tags"
-	application_name: STRING is "gutentag"
+
+	application_name: STRING is "ec"
+			-- Esutdio application name; needed to find right registry key
+			-- (EIFFEL_ENV)
 
 invariant
 

@@ -45,7 +45,7 @@ feature -- Execution
 		do
 			check_environment_variable
 			set_precompile (False)
-			Arguments.set_program_name (application_name)
+			Arguments.set_program_name ("erl_g")
 			create error_handler.make
 			output_dirname := "reflection_library"
 			process_arguments
@@ -118,8 +118,9 @@ feature {NONE} -- Processing
 			l_generator.generate_all (output_dirname)
 		end
 
-	application_name: STRING is "erl_g"
-			-- Name of application
+	application_name: STRING is "ec"
+			-- Name of estudio application in order to
+			-- find right keys (EIFFEL_ENV)
 
 
 end

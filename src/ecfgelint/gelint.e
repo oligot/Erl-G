@@ -48,7 +48,7 @@ feature -- Execution
 			a_ise_version: STRING
 			a_ise_regexp: RX_PCRE_REGULAR_EXPRESSION
 		do
-			Arguments.set_program_name (application_name)
+			Arguments.set_program_name ("ecfgelint")
 			create error_handler.make_standard
 			is_flat_dbc := True
 			nb := Arguments.argument_count
@@ -347,7 +347,9 @@ feature -- Error handling
 			usage_message_not_void: Result /= Void
 		end
 
-	application_name: STRING is "gelint"
+	application_name: STRING is "ec"
+			-- Application name of estudio (for EIFFEL_ENV),
+			-- to find right right keys in the registry
 
 invariant
 

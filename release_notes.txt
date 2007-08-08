@@ -1,0 +1,15 @@
+EiffelStudio 6.0 on Windows
+---------------------------
+
+Due to a technical issue, auto_test will try to locate EiffelStudio 6.1 by default. 
+If you want auto_test to use EiffelStudio 6.0 instead please make sure you set the 
+following variables correctly:
+
+ - ISE_EIFFEL
+ - ISE_C_COMPILER
+ - ISE_PLATFORM
+
+For example on my machine they are set to:
+set ISE_EIFFEL=F:\Eiffel60
+set ISE_C_COMPILER=msc
+set ISE_PLATFORM=windows
