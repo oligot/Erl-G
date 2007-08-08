@@ -93,7 +93,9 @@
 		<geant target="compile" if="${erl_g_binary_available}=false"/>
 		<geant target="clean"/>
 		<geant target="install"/>
-		<exec executable="find ${ERL_G} -name .svn -type d | xargs -n 1 rm -rf"/>
+		<delete>
+                        <directoryset directory="${ERL_G}" include="@(**/.svn)"/>
+                </delete>
 	</target>
 
 <!-- Implementation -->
