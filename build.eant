@@ -33,6 +33,8 @@
 
 		<geant target="remove_backup_files"/>
 		<geant file="build.eant" target="clean" dir="src/erl_g"/>
+		<geant file="build.eant" target="clean" dir="src/ecfgelint"/>
+		<geant file="build.eant" target="clean" dir="src/gutentag"/>
 		<geant file="build.eant" target="clean" dir="example/hello_world"/>
 		<geant file="build.eant" target="clean" dir="example/interpreter"/>
 		<geant file="build.eant" target="clean" dir="test/"/>
@@ -50,6 +52,10 @@
 
 		<geant target="compile_program">
 			<argument name="a_program" value="ecfgelint"/>
+		</geant>
+
+		<geant target="compile_program">
+			<argument name="a_program" value="gutentag"/>
 		</geant>
 	</target>
 
