@@ -69,8 +69,8 @@
 		<geant file="${ERL_G}/src/ecfgelint/build.eant" target="clobber" dir="src/ecfgelint"/>
 		<geant file="${ERL_G}/example/hello_world/build.eant" target="clobber" dir="example/hello_world"/>
 		<geant file="${ERL_G}/example/interpreter/build.eant" target="clobber" dir="example/interpreter"/>
-		<geant file="build.eant" target="clobber" dir="test/"/>
-		<geant file="build.eant" target="clobber" dir="doc/"/>
+		<geant file="build.eant" target="clobber" dir="test"/>
+		<geant file="build.eant" target="clobber" dir="doc"/>
 	</target>
 
 	<target name="remove_backup_files" depend="init">
