@@ -3,6 +3,7 @@ indexing
 	author: "Patrick Ruckstuhl <patrick@tario.org>"
 	date: "$Date$"
 	revision: "$Revision$"
+	note: "Before using this class make sure the relevant environment variables are set up ($ISE_EIFFEL etc.). You can do this using `EIFFEL_ENV.check_environment_variable' and `EIFFEL_ENV.set_precompile'."
 
 class
 	ET_ECF_PARSER
@@ -192,11 +193,11 @@ feature {NONE} -- Implementation
 			-- The target of our application we our compiling.
 
 	last_targets: ARRAYED_LIST [CONF_TARGET]
-			-- All used targets (libraries and application target) of the last loaded system.
+			-- All used targets (libraries and application target) of the last loaded system;
 			-- All this targets together build the system as they include everything.
 
 	state: CONF_STATE is
-			-- Current state for the compilation based on a_target and the environment.
+			-- Current state for the compilation based on a_target and the environment
 		require
 			application_target_ok: application_target /= Void
 		local
@@ -206,7 +207,7 @@ feature {NONE} -- Implementation
 			l_build: INTEGER
 		do
 			create l_version.make (1)
-				-- compiler version
+				-- Compiler version
 			l_version.force (create {CONF_VERSION}.make_from_string (compiler_version.out), v_compiler)
 
 				-- Platform
@@ -265,7 +266,7 @@ feature {NONE} -- Implementation
 				loop
 					l_cluster := l_clusters.item_for_iteration
 					if l_cluster.is_enabled (l_state) then
-						l_et_clusters.put_last (convert_cluster (l_cluster))
+						l_et_clusters.put_last (gobo_cluster (l_cluster))
 					end
 					l_clusters.forth
 				end
@@ -281,7 +282,7 @@ feature {NONE} -- Implementation
 			loop
 				l_cluster := l_clusters.item_for_iteration
 				if l_cluster.is_enabled (l_state) then
-					l_et_clusters.put_last (convert_cluster (l_cluster))
+					l_et_clusters.put_last (gobo_cluster (l_cluster))
 				end
 				l_clusters.forth
 			end
@@ -293,8 +294,8 @@ feature {NONE} -- Implementation
 			last_universe_set: last_universe /= Void
 		end
 
-	convert_cluster (a_cluster: CONF_CLUSTER): ET_ECF_CLUSTER is
-			-- Convert a conf cluster into a gobo cluster.
+	gobo_cluster (a_cluster: CONF_CLUSTER): ET_ECF_CLUSTER is
+			-- EiffelStudio cluster converted to a Gobo cluster
 		require
 			a_cluster_not_void: a_cluster /= Void
 		local
@@ -310,6 +311,7 @@ feature {NONE} -- Implementation
 		end
 
 invariant
+
 	error_handler_set: error_handler /= Void
 	compiler_version_set: compiler_version /= Void
 
