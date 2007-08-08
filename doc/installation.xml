@@ -40,7 +40,7 @@ revision: "$Revision$"
 			  PATH environment variable. Specifically make sure that the program 'ec' is startable from your
 			  command line prompt. If you would like to compile Erl-G you also need to download the source code
 			  of EiffelStudio. Currently the best way to do this is to get the trunk from the Eiffelstudio subversion
-			  repository (https://eiffelsoftware.origo.ethz.ch/svn/es/trunk). You do not need to compile EiffelStudio
+			  repository (https://eiffelsoftware.origo.ethz.ch/svn/es/trunk revision 69859). You do not need to compile EiffelStudio
 			  in order to compile Erl-G. You do need to properly set the EIFFEL_SRC environment variable though.
 			</para>
 		</listitem>
