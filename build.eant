@@ -37,8 +37,8 @@
 		<geant file="build.eant" target="clean" dir="src/gutentag"/>
 		<geant file="build.eant" target="clean" dir="example/hello_world"/>
 		<geant file="build.eant" target="clean" dir="example/interpreter"/>
-		<geant file="build.eant" target="clean" dir="test/"/>
-		<geant file="build.eant" target="clean" dir="doc/"/>
+		<geant file="build.eant" target="clean" dir="test"/>
+		<geant file="build.eant" target="clean" dir="doc"/>
 	</target>
 
 	<target name="compile" depend="init">
