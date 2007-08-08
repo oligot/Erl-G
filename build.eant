@@ -94,8 +94,8 @@
 		<geant target="clean"/>
 		<geant target="install"/>
 		<delete>
-                        <directoryset directory="${ERL_G}" include="@(**/.svn)"/>
-                </delete>
+		  <directoryset directory="${ERL_G}" include="@(**/.svn)"/>
+		</delete>
 	</target>
 
 <!-- Implementation -->
