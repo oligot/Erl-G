@@ -16,6 +16,7 @@ inherit
 	KI_TEXT_OUTPUT_STREAM
 		redefine
 			is_open_write,
+			is_closable,
 			eol,
 			name,
 			put_character,
@@ -50,6 +51,12 @@ feature -- Status report
 			-- Can items be written to output stream?
 		do
 			Result := output_stream.is_open_write
+		end
+
+	is_closable: BOOLEAN is
+			-- Can current output stream be closed?
+		do
+			Result := output_stream.is_closable
 		end
 
 feature -- Access
