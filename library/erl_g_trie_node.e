@@ -66,6 +66,28 @@ feature -- Status report
 	has_item: BOOLEAN
 			-- Does current node have an item?
 
+	is_leaf: BOOLEAN is
+			-- Is current node a leaf node? I.e. does it not have any children?
+		do
+			Result := children.count = 0
+		end
+
+
+	is_leaf_degenerate: BOOLEAN is
+			-- Is the tree starting at current node degenerate
+			-- (every parent has only one child), no inner node
+			-- has an item and the leaf node has an item? If
+			-- true this means that there is exactly one
+			-- prefix to an item in this tree and the tree looks
+			-- looks like a list.
+		do
+			if has_item then
+				Result := is_leaf
+			else
+				Result := children.count = 1 and children.item (1).is_leaf_degenerate
+			end
+		end
+
 feature -- Access
 
 	item: G
@@ -88,6 +110,34 @@ feature -- Access
 		do
 			create {DS_ARRAYED_LIST [H]} Result.make (level)
 			append_prefix_to_indexable (Result)
+		end
+
+	node_postfix: DS_INDEXABLE [H] is
+			-- Postfix of only item stored in this tree.
+			-- Only applicable if tree is leaf-degenerate.
+		require
+			is_leaf_degenerate: is_leaf_degenerate
+		do
+			create {DS_ARRAYED_LIST [H]} Result.make (30)
+			append_postfix_to_indexable (Result)
+		end
+
+	leaf_node: like Current
+			-- Value of only leaf in tree.
+			-- Note only applicable if tree is leaf-degenerate.
+		require
+			is_leaf_degenerate: is_leaf_degenerate
+		local
+			n: like Current
+		do
+			from
+				n := Current
+			until
+				n.is_leaf
+			loop
+				n := n.children.item (1)
+			end
+			Result := n
 		end
 
 feature -- Element change
@@ -140,6 +190,19 @@ feature {ERL_G_TRIE_NODE} -- Implementation
 			end
 		ensure
 			size_correct: a_list.count = old a_list.count + level
+		end
+
+	append_postfix_to_indexable (a_list: DS_INDEXABLE [H]) is
+			-- Apprend postfix to `a_list'.
+			-- Only applicable if tree is leaf-degenerate.
+		require
+			a_list_not_void: a_list /= Void
+			is_leaf_degenerate: is_leaf_degenerate
+		do
+			a_list.force_last (key_item)
+			if not is_leaf then
+				children.item (1).append_postfix_to_indexable (a_list)
+			end
 		end
 
 invariant

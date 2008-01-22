@@ -124,10 +124,29 @@ feature -- Printing
 				output_stream.put_line ("end")
 			end
 				-- Check if there is a match in the children
-			if a_node.children.count > 0 then
+			if a_node.parent = Void then
 				output_stream.put_string ("if ")
 				output_stream.put_string (a_key_name)
-				output_stream.put_string (" /= Void and then ")
+				output_stream.put_line (" /= Void then ")
+				output_stream.indent
+			end
+			if a_node.is_leaf_degenerate then
+					-- Case where there is only one item to match left in tree
+					-- Note: In this case we use a substring comparsion instead of
+					-- a inspect comparison to generate less and more readable code.
+				output_stream.put_string ("if ")
+				output_stream.put_string (a_key_name)
+				output_stream.put_string (".is_equal (%"")
+				output_stream.put_string (indexable_to_string (a_node.leaf_node.node_prefix))
+				output_stream.put_line ("%") then")
+				output_stream.indent
+				output_stream.put_string ("Result := ")
+				output_stream.put_line (a_node.leaf_node.item)
+				output_stream.dedent
+				output_stream.put_line ("end")
+			elseif a_node.children.count > 1 then
+					-- Normal case several items to match left in the tree
+				output_stream.put_string ("if ")
 				output_stream.put_string (a_key_name)
 				output_stream.put_line (".count >= i then")
 				output_stream.indent
@@ -153,6 +172,8 @@ feature -- Printing
 				output_stream.put_line ("else")
 				output_stream.indent
 				output_stream.put_line ("-- Do nothing.")
+				output_stream.dedent
+				output_stream.put_line ("end")
 				output_stream.dedent
 				output_stream.put_line ("end")
 				output_stream.dedent
@@ -219,7 +240,6 @@ feature -- Printing
 				output_stream.dedent
 				output_stream.put_line ("end")
 			else
-
 				output_stream.put_line ("check")
 				output_stream.indent
 				output_stream.put_line ("dead_end: False")
@@ -238,7 +258,7 @@ feature {NONE} -- Implementation
 			-- Output output stream
 
 	string_to_indexable (a_string: STRING): DS_INDEXABLE [CHARACTER] is
-			-- Chracters of `a_string' in a new linear
+			-- Chracters of `a_string' in a new indexable
 		require
 			a_string_not_void: a_string /= Void
 		local
@@ -258,6 +278,27 @@ feature {NONE} -- Implementation
 		ensure
 			linear_not_void: Result /= Void
 			count_correct: Result.count = a_string.count
+		end
+
+	indexable_to_string (a_indexable: DS_INDEXABLE [CHARACTER]): STRING is
+			-- Items of `a_indexable' in a new string
+		require
+			a_indexable_not_void: a_indexable /= Void
+		local
+			i: INTEGER
+		do
+			create Result.make (a_indexable.count)
+			from
+				i := 1
+			until
+				i > a_indexable.count
+			loop
+				Result.append_character (a_indexable.item (i))
+				i := i + 1
+			end
+		ensure
+			string_not_void: Result /= Void
+			count_correct: Result.count = a_indexable.count
 		end
 
 
