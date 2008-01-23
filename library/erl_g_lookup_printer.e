@@ -144,7 +144,7 @@ feature -- Printing
 				output_stream.put_line (a_node.leaf_node.item)
 				output_stream.dedent
 				output_stream.put_line ("end")
-			elseif a_node.children.count > 1 then
+			elseif a_node.children.count > 0 then
 					-- Normal case several items to match left in the tree
 				output_stream.put_string ("if ")
 				output_stream.put_string (a_key_name)
@@ -176,6 +176,8 @@ feature -- Printing
 				output_stream.put_line ("end")
 				output_stream.dedent
 				output_stream.put_line ("end")
+			end
+			if a_node.parent = Void then
 				output_stream.dedent
 				output_stream.put_line ("end")
 			end
