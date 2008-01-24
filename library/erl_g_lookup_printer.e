@@ -130,22 +130,49 @@ feature -- Printing
 				output_stream.put_line (" /= Void then ")
 				output_stream.indent
 			end
-			if a_node.is_leaf_degenerate then
-					-- Case where there is only one item to match left in tree
-					-- Note: In this case we use a substring comparsion instead of
-					-- a inspect comparison to generate less and more readable code.
+			if a_node.is_degenerate and not a_node.is_leaf then
+					-- Tree is degenerate with only one item at the very end.
+					-- We can replace all remaining steps with one substring comparison.
 				output_stream.put_string ("if ")
 				output_stream.put_string (a_key_name)
-				output_stream.put_string (".is_equal (%"")
-				output_stream.put_string (indexable_to_string (a_node.leaf_node.node_prefix))
+				output_stream.put_string (".substring (")
+				output_stream.put_integer (a_node.level + 1)
+				output_stream.put_string (", ")
+				output_stream.put_string (a_key_name)
+				output_stream.put_string (".count).is_equal (%"")
+				output_stream.put_string (indexable_to_string (a_node.leaf_node.node_prefix).substring (a_node.level + 1, a_node.leaf_node.node_prefix.count))
 				output_stream.put_line ("%") then")
 				output_stream.indent
 				output_stream.put_string ("Result := ")
 				output_stream.put_line (a_node.leaf_node.item)
 				output_stream.dedent
 				output_stream.put_line ("end")
+			elseif a_node.is_part_degenerate then
+					-- Sequence of nodes with only one child.
+					-- We can skip a few levels using substring comparison.
+				output_stream.put_string ("if ")
+				output_stream.put_string (a_key_name)
+				output_stream.put_string (".count >= ")
+				output_stream.put_integer (a_node.level + a_node.part_degenerate_count)
+				output_stream.put_string (" and then ")
+				output_stream.put_string (a_key_name)
+				output_stream.put_string (".substring (")
+				output_stream.put_integer (a_node.level + 1)
+				output_stream.put_string (", ")
+				output_stream.put_integer (a_node.level + a_node.part_degenerate_count)
+				output_stream.put_string (").is_equal (%"")
+				output_stream.put_string (indexable_to_string (a_node.part_degenerate_end_node.node_prefix).substring (a_node.level + 1, a_node.level + a_node.part_degenerate_count))
+				output_stream.put_line ("%") then")
+				output_stream.indent
+				output_stream.put_string ("i := i + ")
+				output_stream.put_integer (a_node.part_degenerate_count)
+				output_stream.put_new_line
+				print_switch_for_trie_node (a_key_name, a_node.part_degenerate_end_node)
+				output_stream.dedent
+				output_stream.put_line ("end")
 			elseif a_node.children.count > 0 then
-					-- Normal case several items to match left in the tree
+					-- Normal case several items to match left in the tree.
+					-- We use inspect to match only one character.
 				output_stream.put_string ("if ")
 				output_stream.put_string (a_key_name)
 				output_stream.put_line (".count >= i then")

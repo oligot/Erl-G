@@ -73,7 +73,7 @@ feature -- Status report
 		end
 
 
-	is_leaf_degenerate: BOOLEAN is
+	is_degenerate: BOOLEAN is
 			-- Is the tree starting at current node degenerate
 			-- (every parent has only one child), no inner node
 			-- has an item and the leaf node has an item? If
@@ -84,8 +84,15 @@ feature -- Status report
 			if has_item then
 				Result := is_leaf
 			else
-				Result := children.count = 1 and children.item (1).is_leaf_degenerate
+				Result := children.count = 1 and children.item (1).is_degenerate
 			end
+		end
+
+	is_part_degenerate: BOOLEAN is
+			-- Is there a sequence of degenerate nodes starting with this node?
+			-- I.e. a sequence of nodes (>1) that each have exactly one child and no item?
+		do
+			Result := part_degenerate_count > 1
 		end
 
 feature -- Access
@@ -116,7 +123,7 @@ feature -- Access
 			-- Postfix of only item stored in this tree.
 			-- Only applicable if tree is leaf-degenerate.
 		require
-			is_leaf_degenerate: is_leaf_degenerate
+			is_degenerate: is_degenerate
 		do
 			create {DS_ARRAYED_LIST [H]} Result.make (30)
 			append_postfix_to_indexable (Result)
@@ -126,7 +133,7 @@ feature -- Access
 			-- Value of only leaf in tree.
 			-- Note only applicable if tree is leaf-degenerate.
 		require
-			is_leaf_degenerate: is_leaf_degenerate
+			is_degenerate: is_degenerate
 		local
 			n: like Current
 		do
@@ -138,6 +145,45 @@ feature -- Access
 				n := n.children.item (1)
 			end
 			Result := n
+		end
+
+	part_degenerate_count: INTEGER is
+			-- Number of nodes that have one child and no item (starting with current)
+		local
+			n: ERL_G_TRIE_NODE [G, H]
+		do
+			from
+				n := Current
+			until
+				n.children.count /= 1 or else n.children.item (1).has_item
+			loop
+				Result := Result + 1
+				n := n.children.item (1)
+			end
+			if n.children.count = 1 then
+				Result := Result + 1
+			end
+		end
+
+	part_degenerate_end_node: ERL_G_TRIE_NODE [G, H] is
+			-- Last node that has no item and whose parent has one child
+		require
+			is_part_degenerate: is_part_degenerate
+		local
+			n: ERL_G_TRIE_NODE [G, H]
+		do
+			from
+				n := Current
+			until
+				n.children.count /= 1 or else n.children.item (1).has_item
+			loop
+				n := n.children.item (1)
+			end
+			if n.children.count = 1 then
+				Result := n.children.item (1)
+			else
+				Result := n
+			end
 		end
 
 feature -- Element change
@@ -197,7 +243,7 @@ feature {ERL_G_TRIE_NODE} -- Implementation
 			-- Only applicable if tree is leaf-degenerate.
 		require
 			a_list_not_void: a_list /= Void
-			is_leaf_degenerate: is_leaf_degenerate
+			is_degenerate: is_degenerate
 		do
 			a_list.force_last (key_item)
 			if not is_leaf then
