@@ -2,11 +2,11 @@
 <system xmlns="http://www.eiffel.com/developers/xml/configuration-1-2-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-2-0 http://www.eiffel.com/developers/xml/configuration-1-2-0.xsd" name="erl_g_library" uuid="6A258608-2A09-456D-9F45-2B2CF630A78F" library_target="erl_g_library">
 	<target name="erl_g_library">
 		<root class="ITP_INTERPRETER" feature="execute"/>
+		<cdd extract="false" execute="true"/>
 		<option warning="true">
 			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
 		</option>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
-		<library name="cdd" location="$ISE_LIBRARY\library\cdd\cdd.ecf"/>
 		<library name="configuration_parser" location="$EIFFEL_SRC\framework\configuration\configuration_parser.ecf"/>
 		<library name="gobo" location="$ISE_LIBRARY\library\gobo\gobo.ecf"/>
 		<cluster name="erl_g_library" location=".\" recursive="true">
