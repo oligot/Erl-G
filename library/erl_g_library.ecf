@@ -2,7 +2,6 @@
 <system xmlns="http://www.eiffel.com/developers/xml/configuration-1-2-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-2-0 http://www.eiffel.com/developers/xml/configuration-1-2-0.xsd" name="erl_g_library" uuid="6A258608-2A09-456D-9F45-2B2CF630A78F" library_target="erl_g_library">
 	<target name="erl_g_library">
 		<root class="ITP_INTERPRETER" feature="execute"/>
-		<cdd extract="true" execute="true"/>
 		<option warning="true">
 			<assertions precondition="true" postcondition="true" check="true" invariant="true" loop="true" supplier_precondition="true"/>
 		</option>
