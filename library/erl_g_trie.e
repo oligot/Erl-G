@@ -72,7 +72,7 @@ feature -- Nodes
 		do
 			if a_key.count = a_node.level and a_node.has_item then
 				check
-					valid_key: a_key.item (a_node.level) = a_node.item
+					valid_key: a_key.item (a_node.level) = a_node.key_item
 				end
 				last_found := True
 				last_item := a_node.item
