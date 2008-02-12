@@ -2,7 +2,6 @@
 <system xmlns="http://www.eiffel.com/developers/xml/configuration-1-2-0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.eiffel.com/developers/xml/configuration-1-2-0 http://www.eiffel.com/developers/xml/configuration-1-2-0.xsd" name="erl_g" uuid="41BA88A9-5D65-421A-8C5B-8742A1334F4D">
 	<target name="erl_g">
 		<root class="ERL_G" feature="execute"/>
-		<cdd extract="true" execute="true"/>
 		<setting name="exception_trace" value="true"/>
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="environment" location="$EIFFEL_SRC\framework\environment\environment.ecf"/>
