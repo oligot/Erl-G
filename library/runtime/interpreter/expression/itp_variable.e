@@ -11,8 +11,14 @@ class ITP_VARIABLE
 inherit
 
 	ITP_EXPRESSION
+		undefine
+			is_equal
+		end
 
 	HASHABLE
+		redefine
+			is_equal
+		end
 
 create
 
@@ -39,6 +45,13 @@ feature -- Access
 	hash_code: INTEGER is
 		do
 			Result := name.hash_code
+		end
+
+	is_equal (other: like Current): BOOLEAN
+		do
+			if other.name.is_equal (name) then
+				Result := True
+			end
 		end
 
 feature -- Processing
