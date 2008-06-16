@@ -142,7 +142,7 @@ feature {NONE} -- Implementation
 			pair: DS_PAIR [STRING, STRING]
 			name: STRING
 		do
-			create list.make (reflection_generator.universe.classes.count + reflection_generator.universe.basic_classes.count)
+			create list.make (reflection_generator.universe.classes.count + reflection_generator.basic_classes.count)
 			from
 				cs := reflection_generator.universe.classes.new_cursor
 				cs.start
@@ -161,7 +161,7 @@ feature {NONE} -- Implementation
 				cs.forth
 			end
 			from
-				cs := reflection_generator.universe.basic_classes.new_cursor
+				cs := reflection_generator.basic_classes.new_cursor
 				cs.start
 			until
 				cs.off

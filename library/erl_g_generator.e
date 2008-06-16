@@ -17,11 +17,6 @@ inherit
 	ERL_G_TYPE_ROUTINES
 		export {NONE} all end
 
-	ET_SYSTEM
-		rename
-			make as make_system
-		end
-
 	KL_SHARED_STREAMS
 		export {NONE} all end
 
@@ -31,25 +26,56 @@ inherit
 	KL_IMPORTED_INTEGER_ROUTINES
 		export {NONE} all end
 
+	ET_SHARED_TOKEN_CONSTANTS
+		export {NONE} all end
+
+	ERL_G_SHARED_ERROR_MESSAGE
+		export {NONE} all end
+
 create
 
 	make
 
 feature {NONE} -- Initialization
 
-	make (a_universe: ET_UNIVERSE) is
+	make (a_universe: ET_SYSTEM) is
 			-- Create new reflection universe based on the gelint
 			-- universe `a_universe'.
 		do
 			create creatable_types.make_map_default
-			make_system (a_universe)
-			universe.activate_processors
-			activate_dynamic_type_set_builder
-			universe.parse_all
-			universe.compile_degree_4
-			universe.compile_degree_3
-			compile_kernel
+			set_universe (a_universe)
+			universe.error_handler.set_ise
+			universe.compile
 			mark_default_types_creatable
+		end
+
+feature -- Access
+
+	universe: ET_SYSTEM
+			-- Universe from which reflection library is generated
+
+	basic_classes: DS_HASH_TABLE [ET_CLASS, ET_CLASS_NAME] is
+			-- Mapping between sized basic type names (e.g. INTEGER, STRING)
+			-- and their actual classes (which are stored in `classes' under
+			-- their actual names) when aliased
+		do
+			if basic_classes_internal = Void then
+				create basic_classes_internal.make (15)
+				basic_classes_internal.force_last (universe.string_8_class, tokens.string_class_name)
+				basic_classes_internal.force_last (universe.character_8_class, tokens.character_class_name)
+				basic_classes_internal.force_last (universe.character_32_class, tokens.wide_character_class_name)
+				basic_classes_internal.force_last (universe.integer_32_class, tokens.integer_class_name)
+				basic_classes_internal.force_last (universe.natural_32_class, tokens.natural_class_name)
+				basic_classes_internal.force_last (universe.real_32_class, tokens.real_class_name)
+				basic_classes_internal.force_last (universe.real_64_class, tokens.double_class_name)
+				basic_classes_internal.force_last (universe.character_8_ref_class, tokens.character_ref_class_name)
+				basic_classes_internal.force_last (universe.character_32_ref_class, tokens.wide_character_ref_class_name)
+				basic_classes_internal.force_last (universe.integer_32_ref_class, tokens.integer_ref_class_name)
+				basic_classes_internal.force_last (universe.natural_32_ref_class, tokens.natural_ref_class_name)
+				basic_classes_internal.force_last (universe.real_32_ref_class, tokens.real_ref_class_name)
+				basic_classes_internal.force_last (universe.real_64_ref_class, tokens.double_ref_class_name)
+			end
+			Result := basic_classes_internal
 		end
 
 feature -- Status report
@@ -61,7 +87,7 @@ feature -- Status report
 		local
 			list: DS_LINEAR [ET_BASE_TYPE]
 		do
-			list := creatable_types_of_class (a_type.direct_base_class (universe))
+			list := creatable_types_of_class (a_type.base_class)
 			Result := list /= Void and then list.has (a_type)
 		end
 
@@ -76,7 +102,7 @@ feature -- Element change
 			list: DS_ARRAYED_LIST [ET_BASE_TYPE]
 			base_class: ET_CLASS
 		do
-			base_class := a_type.direct_base_class (universe)
+			base_class := a_type.base_class
 			creatable_types.search (base_class)
 			if creatable_types.found then
 				list := creatable_types.found_item
@@ -85,6 +111,18 @@ feature -- Element change
 				creatable_types.force (list, base_class)
 			end
 			list.force_last (a_type)
+		end
+
+feature -- Setting
+
+	set_universe (a_universe: like universe) is
+			-- Set `universe' with `a_universe'.
+		require
+			a_universe_attached: a_universe /= Void
+		do
+			universe := a_universe
+		ensure
+			universe_set: universe = a_universe
 		end
 
 feature -- Generation
@@ -141,7 +179,7 @@ feature {NONE} -- Implementation
 			from l_cursor.start until l_cursor.after loop
 				l_class := l_cursor.item
 				if not l_class.implementation_checked or else l_class.has_implementation_error then
-					set_fatal_error
+--					universe.error_handler.report_error_message (class_not_compiled_or_contain_error (l_class.name.name))
 				else
 					if l_class.is_generic then
 						l_class_type := generic_derivation (l_class, universe)
@@ -175,10 +213,10 @@ feature {NONE} -- Implementation
 				reflection_universe_generator.generate (file)
 				file.close
 				if reflection_universe_generator.has_fatal_error then
-					has_fatal_error := True
+					universe.error_handler.report_error_message (reflection_generator_has_error)
 				end
 			else
-				has_fatal_error := True
+				universe.error_handler.report_error_message (cannot_create_file_error (file.name))
 			end
 		end
 
@@ -204,7 +242,7 @@ feature {NONE} -- Implementation
 				cs.off
 			loop
 				if not cs.item.implementation_checked or else cs.item.has_implementation_error then
-					set_fatal_error
+--					universe.error_handler.report_error_message (class_not_compiled_or_contain_error (cs.item.name.name))
 				else
 					class_name := meta_class_name (cs.item)
 					filename := class_name.as_lower
@@ -215,10 +253,10 @@ feature {NONE} -- Implementation
 						reflection_class_generator.generate (file, cs.item)
 						file.close
 						if reflection_class_generator.has_fatal_error then
-							has_fatal_error := True
+							universe.error_handler.report_error_message (reflection_generator_has_error)
 						end
 					else
-						has_fatal_error := True
+						universe.error_handler.report_error_message (cannot_create_file_error (file.name))
 					end
 				end
 				cs.forth
@@ -227,6 +265,9 @@ feature {NONE} -- Implementation
 
 	creatable_types: DS_HASH_TABLE [DS_ARRAYED_LIST [ET_BASE_TYPE], ET_CLASS]
 			-- Types that are creatable (key is corresponding base class)
+
+	basic_classes_internal: like basic_classes
+			-- Implementation of `basic_classes'
 
 invariant
 

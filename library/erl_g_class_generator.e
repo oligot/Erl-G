@@ -34,7 +34,7 @@ feature {NONE} -- Initialization
 		do
 			reflection_generator := a_reflection_generator
 			create output_stream.make (null_output_stream)
-			create ast_printer.make_null (reflection_generator.universe)
+			create ast_printer.make_null
 		ensure
 			reflection_generator_set: reflection_generator = a_reflection_generator
 		end
@@ -290,7 +290,7 @@ feature {NONE} -- Generation of features belonging to the "Access" feature claus
 					i > class_.parents.count
 				loop
 					output_stream.put_string ("universe.class_by_name (%"")
-					output_stream.put_string (class_.parents.item (i).parent.type.direct_base_class (reflection_generator.universe).name.name)
+					output_stream.put_string (class_.parents.item (i).parent.type.base_class.name.name)
 					output_stream.put_string ("%")")
 					i := i + 1
 					if i <= class_.parents.count then
@@ -400,7 +400,7 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 										name.append_integer (j)
 										name.append_string (": ")
 										l_type := procedure.arguments.formal_argument (j).type
-										l_type := l_type.base_type (a_type, reflection_generator.universe)
+										l_type := l_type.base_type (a_type)
 										name.append_string (l_type.to_text)
 										j := j + 1
 										if j <= procedure.arguments.count then
@@ -681,7 +681,7 @@ feature {NONE} -- Generation of features belonging to the "Implementation" featu
 					output_stream.put_string ("arguments.put_last ( create {ERL_ARGUMENT_IMP}.make (%"")
 					output_stream.put_string (an_argument.formal_argument.name.name)
 					output_stream.put_string ("%", universe.type_by_name (%"")
-					argument_base_type :=  an_argument.type.base_type (type, reflection_generator.universe)
+					argument_base_type :=  an_argument.type.base_type (type)
 					output_stream.put_string (argument_base_type.to_text)
 					output_stream.put_line ("%")))")
 					i := i + 1
@@ -770,6 +770,6 @@ invariant
 	reflection_generator_not_void: reflection_generator /= Void
 	ast_printer_not_void: ast_printer /= Void
 	class_not_void_means_type_not_void: class_ /= Void implies type /= Void
-	base_class_of_type_valid: class_ /= Void implies type.direct_base_class (reflection_generator.universe) = class_
+	base_class_of_type_valid: class_ /= Void implies type.base_class = class_
 
 end

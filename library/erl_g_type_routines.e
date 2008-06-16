@@ -65,7 +65,7 @@ feature
 			Result := external_routine /= Void
 		end
 
-	generic_derivation (a_class: ET_CLASS; a_universe: ET_UNIVERSE): ET_GENERIC_CLASS_TYPE is
+	generic_derivation (a_class: ET_CLASS; a_universe: ET_SYSTEM): ET_GENERIC_CLASS_TYPE is
 			-- Generic derivation `a_class'; this is a type which has `a_class' as base class
 			-- but where all formal parameters have been closed with types. The types to be used
 			-- as actual paramenters will be ANY for unconstrained formal parameters and
@@ -106,7 +106,7 @@ feature
 			unresolved_type_is_set: Result.unresolved_type = a_class
 		end
 
-	has_deferred_actual_with_create_clause (a_type: ET_BASE_TYPE; a_universe: ET_UNIVERSE): BOOLEAN is
+	has_deferred_actual_with_create_clause (a_type: ET_BASE_TYPE; a_universe: ET_SYSTEM): BOOLEAN is
 			-- Has the base class of `a_type' a formal generic parameter that
 			-- is constrained with a create clause and has the corresponding
 			-- `a_type' a deferred actual parameter? (Such types cannot be
@@ -122,7 +122,7 @@ feature
 			i: INTEGER
 			nb: INTEGER
 		do
-			base_class := a_type.direct_base_class (a_universe)
+			base_class := a_type.base_class
 			formal_parameters := base_class.formal_parameters
 			if formal_parameters /= Void then
 				actual_parameters := a_type.actual_parameters
@@ -137,14 +137,14 @@ feature
 						formal_parameter.creation_procedures /= Void and then
 						formal_parameter.creation_procedures.count > 0
 					then
-						Result := actual_parameters.type (i).direct_base_class (a_universe).is_deferred
+						Result := actual_parameters.type (i).base_class (a_type).is_deferred
 					end
 					i := i + 1
 				end
 			end
 		end
 
-	is_default_creatable (a_class: ET_CLASS; a_universe: ET_UNIVERSE): BOOLEAN is
+	is_default_creatable (a_class: ET_CLASS; a_universe: ET_SYSTEM): BOOLEAN is
 			-- Are objects of type `a_class' creatable via default creation?
 		require
 			a_class_not_void: a_class /= Void
@@ -158,13 +158,13 @@ feature
 					Result := False
 				elseif a_class.creators = Void then
 					Result := True
-				elseif a_class.is_creation_exported_to (procedure.name, a_universe.any_class, a_universe) then
+				elseif a_class.is_creation_exported_to (procedure.name, a_universe.any_class) then
 					Result := True
 				end
 			end
 		end
 
-	is_basic_class (a_class: ET_CLASS; a_universe: ET_UNIVERSE): BOOLEAN is
+	is_basic_class (a_class: ET_CLASS; a_universe: ET_SYSTEM): BOOLEAN is
 			-- Is `a_class' a basic class?
 		require
 			a_class_not_void: a_class /= Void
@@ -188,7 +188,7 @@ feature
 				a_class = a_universe.typed_pointer_class
 		end
 
-	creation_procedure_count (a_base_type: ET_BASE_TYPE; a_base_class: ET_CLASS; a_universe: ET_UNIVERSE): INTEGER is
+	creation_procedure_count (a_base_type: ET_BASE_TYPE; a_base_class: ET_CLASS; a_universe: ET_SYSTEM): INTEGER is
 			-- Number of creation procedures in class `base_class';
 			-- Note that types, whose base class is generic and has a
 			-- formal parameter that includes a create clause and said
@@ -199,7 +199,7 @@ feature
 			a_base_type_not_void: a_base_type /=  Void
 			a_base_class_not_void: a_base_class /= Void
 			a_universe_not_void: a_universe /= Void
-			a_base_class_is_valid: a_base_type.direct_base_class (a_universe) = a_base_class
+			a_base_class_is_valid: a_base_type.base_class = a_base_class
 		local
 			creator_index: INTEGER
 			feature_index: INTEGER
@@ -224,7 +224,7 @@ feature
 				end
 				if
 					is_default_creatable (a_base_class, a_universe) and
-					not a_base_class.is_creation_exported_to (a_base_class.seeded_procedure (a_universe.default_create_seed).name, a_universe.any_class, a_universe)
+					not a_base_class.is_creation_exported_to (a_base_class.seeded_procedure (a_universe.default_create_seed).name, a_universe.any_class)
 				then
 					Result := Result + 1
 				end
@@ -261,7 +261,7 @@ feature
 			definition: Result = a_class.queries.count + a_class.procedures.count
 		end
 
-	feature_count (a_base_class: ET_CLASS; a_universe: ET_UNIVERSE): INTEGER is
+	feature_count (a_base_class: ET_CLASS; a_universe: ET_SYSTEM): INTEGER is
 			-- Number of features in class `base_class';
 			-- Only supported feature will be considered.
 		require
@@ -289,7 +289,7 @@ feature
 			end
 		end
 
-	i_th_feature (an_index: INTEGER; a_base_class: ET_CLASS; a_universe: ET_UNIVERSE): ET_FEATURE is
+	i_th_feature (an_index: INTEGER; a_base_class: ET_CLASS; a_universe: ET_SYSTEM): ET_FEATURE is
 			-- `an_index'-th feature of class `a_base_class';
 			-- Only supported feature will be considered.
 		require
@@ -327,7 +327,7 @@ feature
 
 feature {NONE} -- Parsing class types
 
-	base_type (a_name: STRING; a_universe: ET_UNIVERSE): ET_BASE_TYPE is
+	base_type (a_name: STRING; a_universe: ET_SYSTEM): ET_BASE_TYPE is
 			-- Base type of `a_name' or `Void' if it doesn't exist
 		require
 			a_name_not_void: a_name /= Void
@@ -406,7 +406,7 @@ feature {NONE} -- Parsing class types
 			-- Last class parsed by `parse_class';
 			-- Void if an error was found when parsing
 
-	parse_base_type (str: STRING; a_position: INTEGER; a_universe: ET_UNIVERSE): INTEGER is
+	parse_base_type (str: STRING; a_position: INTEGER; a_universe: ET_SYSTEM): INTEGER is
 			-- Parse class type or tuple type in `str' starting at `a_position'.
 			-- Make result available in `last_base_type', or Void
 			-- if an error was found.
@@ -427,7 +427,7 @@ feature {NONE} -- Parsing class types
 						-- Tuples have a variable number of arguments.
 					i := parse_open_bracket (str, Result)
 					if i > str.count + 1 then
-						create {ET_TUPLE_TYPE} last_base_type.make (Void)
+						create {ET_TUPLE_TYPE} last_base_type.make (Void, Void, a_universe.tuple_class)
 					else
 						from
 							Result := i
@@ -463,7 +463,7 @@ feature {NONE} -- Parsing class types
 								an_actuals.force_first (tmp_actuals.item (i))
 								i := i + 1
 							end
-							create {ET_TUPLE_TYPE} last_base_type.make (an_actuals)
+							create {ET_TUPLE_TYPE} last_base_type.make (Void, an_actuals, a_universe.tuple_class)
 						end
 					end
 				elseif a_class.is_generic then
