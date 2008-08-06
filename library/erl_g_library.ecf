@@ -8,7 +8,7 @@
 		<library name="base" location="$ISE_LIBRARY\library\base\base.ecf"/>
 		<library name="configuration_parser" location="$EIFFEL_SRC\framework\configuration\configuration_parser.ecf"/>
 		<library name="gobo" location="$ISE_LIBRARY\library\gobo\gobo.ecf"/>
-		<cluster name="gobo_ecf_support" location ="$GOBO\src\ecf_support" recursive="true">
+		<cluster name="gobo_ecf_support" location ="$ISE_LIBRARY\library\gobo\src\ecf_support" recursive="true">
 			<file_rule>
 				<exclude>/.svn$</exclude>
 				<exclude>/EIFGENs$</exclude>
