@@ -30,9 +30,6 @@ inherit
 	KL_SHARED_EXECUTION_ENVIRONMENT
 		export {NONE} all end
 
-	EIFFEL_ENV
-		export {NONE} all end
-
 creation
 
 	execute
@@ -46,16 +43,15 @@ feature -- Execution
 			a_file: KL_TEXT_INPUT_FILE
 			a_lace_parser: ET_LACE_PARSER
 			a_lace_error_handler: ET_LACE_ERROR_HANDLER
-			an_xace_parser: ET_XACE_UNIVERSE_PARSER
+			an_xace_parser: ET_XACE_SYSTEM_PARSER
 			an_xace_error_handler: ET_XACE_DEFAULT_ERROR_HANDLER
 			an_xace_variables: DS_HASH_TABLE [STRING, STRING]
-			a_ecf_parser: ET_ECF_PARSER
 			a_splitter: ST_SPLITTER
 			a_cursor: DS_LIST_CURSOR [STRING]
 			a_definition: STRING
 			an_index: INTEGER
 			gobo_eiffel: STRING
-			a_universe: ET_UNIVERSE
+			a_system: ET_SYSTEM
 			i, nb: INTEGER
 			arg: STRING
 		do
@@ -73,8 +69,6 @@ feature -- Execution
 					Exceptions.die (0)
 				elseif arg.count > 9 and then arg.substring (1, 9).is_equal ("--define=") then
 					defined_variables := arg.substring (10, arg.count)
-				elseif arg.count > 9 and then arg.substring (1, 9).is_equal ("--target=") then
-					ecf_target := arg.substring (10, arg.count)
 				elseif arg.count > 9 and then arg.substring (1, 9).is_equal ("--output=") then
 					output_filename := arg.substring (10, arg.count)
 				elseif arg.count > 9 and then arg.substring (1, 9).is_equal ("--format=") then
@@ -148,18 +142,7 @@ feature -- Execution
 					an_xace_parser.parse_file (a_file)
 					a_file.close
 					if not an_xace_error_handler.has_error then
-						a_universe := an_xace_parser.last_universe
-					end
-				elseif nb > 4 and then a_filename.substring (nb - 3, nb).is_equal (".ecf") then
-					check_environment_variable
-					set_precompile (False)
-					create a_ecf_parser.make_standard
-					if ecf_target /= Void then
-						a_ecf_parser.set_target (ecf_target)
-					end
-					a_ecf_parser.load (a_filename)
-					if not a_ecf_parser.is_error then
-						a_universe := a_ecf_parser.last_universe
+						a_system := an_xace_parser.last_system
 					end
 				else
 					create a_lace_error_handler.make_standard
@@ -167,11 +150,11 @@ feature -- Execution
 					a_lace_parser.parse_file (a_file)
 					a_file.close
 					if not a_lace_parser.syntax_error then
-						a_universe := a_lace_parser.last_universe
+						a_system := a_lace_parser.last_system
 					end
 				end
-				if a_universe /= Void then
-					process_universe (a_universe)
+				if a_system /= Void then
+					process_system (a_system)
 				end
 			else
 				error_handler.report_cannot_read_error (a_filename)
@@ -188,7 +171,6 @@ feature -- Status report
 	reference_keyword: BOOLEAN
 	output_filename: STRING
 	tag_format: INTEGER
-	ecf_target: STRING
 			-- Command-line options
 
 feature -- Access
@@ -198,10 +180,10 @@ feature -- Access
 
 feature {NONE} -- Processing
 
-	process_universe (a_universe: ET_UNIVERSE) is
-			-- Process `a_universe'.
+	process_system (a_system: ET_SYSTEM) is
+			-- Process `a_system'.
 		require
-			a_universe_not_void: a_universe /= Void
+			a_system_not_void: a_system /= Void
 		local
 			an_ast_factory: ET_DECORATED_AST_FACTORY
 			a_null_error_handler: ET_NULL_ERROR_HANDLER
@@ -210,35 +192,25 @@ feature {NONE} -- Processing
 		do
 			create an_ast_factory.make
 			an_ast_factory.set_keep_all_breaks (True)
-			a_universe.set_ast_factory (an_ast_factory)
+			a_system.set_ast_factory (an_ast_factory)
 			if no_output then
 				create a_null_error_handler.make_standard
-				a_universe.set_error_handler (a_null_error_handler)
+				a_system.set_error_handler (a_null_error_handler)
 			end
 
-			a_universe.error_handler.set_ise
+			a_system.error_handler.set_ise
 			if not is_verbose then
-				a_universe.error_handler.set_info_null
+				a_system.error_handler.set_info_null
 			end
 
-			a_universe.set_use_assign_keyword (True)
-			a_universe.set_use_attribute_keyword (False)
-			a_universe.set_use_convert_keyword (True)
-			a_universe.set_use_create_keyword (True)
-			a_universe.set_use_recast_keyword (True)
-			a_universe.set_use_reference_keyword (reference_keyword)
-			if void_feature then
-				a_universe.set_use_void_keyword (False)
-			else
-				a_universe.set_use_void_keyword (True)
-			end
-			a_universe.activate_processors
-			a_universe.parse_all
-			a_universe.compile_degree_5
+			a_system.set_use_attribute_keyword (False)
+			a_system.set_use_reference_keyword (reference_keyword)
+			a_system.activate_processors
+			a_system.parse_all
 			if tag_format = formats.emacs_code then
-				create {TAG_EMACS_GENERATOR} a_generator.make (a_universe, error_handler)
+				create {TAG_EMACS_GENERATOR} a_generator.make (a_system, error_handler)
 			elseif tag_format = formats.vi_code then
-				create {TAG_VI_GENERATOR} a_generator.make (a_universe, error_handler)
+				create {TAG_VI_GENERATOR} a_generator.make (a_system, error_handler)
 			else
 					check
 						dead_end: False
@@ -259,10 +231,6 @@ feature {NONE} -- Constants
 	default_input_filename: STRING is "system.xace"
 	default_emacs_output_filename: STRING is "TAGS"
 	default_vi_output_filename: STRING is "tags"
-
-	application_name: STRING is "ec"
-			-- Esutdio application name; needed to find right registry key
-			-- (EIFFEL_ENV)
 
 invariant
 
