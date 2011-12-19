@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<library name="erl_g_library" prefix="egl_">
+	<description>
+		description: "Xace fle for the Erl-G Library"
+		copyright: "Copyright (c) 2005-2007, Andreas Leitner and others"
+		license: "Eiffel Forum License v2 (see forum.txt)"
+		date: "$Date$"
+		revision: "$Revision$"
+	</description>
+
+	<cluster name="erl_g_library" location="${ERL_G}/library">
+		<option name="abstract" value="true"/>
+		<!--<cluster name="ecf"/>-->
+		<cluster name="error"/>
+                <cluster name="runtime">
+                        <option name="abstract" value="true"/>
+                        <cluster name="empty_implementation"/>
+                        <cluster name="interpreter">
+                                <option name="abstract" value="true"/>
+                                <cluster name="expression"/>
+                        </cluster>
+                </cluster>
+	</cluster>
+</library>
