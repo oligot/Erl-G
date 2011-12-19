@@ -54,18 +54,18 @@ feature -- Generation
 			a_file_open_write: a_file.is_open_write
 		local
 			old_file: KI_TEXT_OUTPUT_STREAM
-			cs: DS_HASH_TABLE_CURSOR [ET_CLASS, ET_CLASS_NAME]
+			cs: DS_HASH_TABLE_CURSOR [ET_MASTER_CLASS, ET_CLASS_NAME]
 		do
 			old_file := current_file
 			current_file := a_file
 			from
-				cs := universe.classes.new_cursor
+				cs := universe.master_classes.new_cursor
 				cs.start
 			until
 				cs.off
 			loop
-				if cs.item.filename /= Void then
-					generate_class (cs.item)
+				if cs.item.actual_class.filename /= Void then
+					generate_class (cs.item.actual_class)
 				end
 				cs.forth
 			end
